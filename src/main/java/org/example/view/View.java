@@ -17,12 +17,6 @@ public interface View{
     void displayReceiverBTS(BTC bts);
     void displayAddBSCButton();
     void displayDeleteBSCButton();
-    void display();
-    void setUp();
-
-    List<Receiver> updateReceivers();
-
-    List<Sender> updateSenders();
-
+    void repaint();
     Map<Integer, List<BSC>> updateBSCes();
 }

@@ -10,18 +10,17 @@ import java.util.List;
 public class ReceiverPanel extends JPanel {
     private List<Receiver> receiverPool;
     private JButton plusBut = new JButton("+");
-    {
+    private JButton minusBut = new JButton("-");
+    public ReceiverPanel() {
+        super();
         plusBut.setSize(new Dimension(40, 40));
         plusBut.setVisible(true);
         plusBut.addActionListener(e -> {
-            Receiver plus1 = new Receiver("R" + (receiverPool.size() + 1), 40, 40);
+            Receiver plus1 = new Receiver("R" + (receiverPool.size() + 1));
             receiverPool.add(plus1);
             removeAndRepaint();
         });
-        this.add(plusBut);
-    }
-    private JButton minusBut = new JButton("-");
-    {
+
         minusBut.setSize(new Dimension(40, 40));
         minusBut.setVisible(true);
         minusBut.addActionListener(e -> {
@@ -29,10 +28,9 @@ public class ReceiverPanel extends JPanel {
             receiverPool.remove(receiverPool.size() - 1);
             removeAndRepaint();
         });
+
+        this.add(plusBut);
         this.add(minusBut);
-    }
-    public ReceiverPanel() {
-        super();
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -44,6 +42,7 @@ public class ReceiverPanel extends JPanel {
         removeAll();
         add(plusBut);
         add(minusBut);
+        addReceiverPoolToPanel();
         revalidate();
         repaint();
     }
@@ -65,7 +64,5 @@ public class ReceiverPanel extends JPanel {
         if (!receiverPool.isEmpty()) receiverPool.forEach(this::add);
     }
 
-    public synchronized List<Receiver> getNewData() {
-        return receiverPool;
-    }
+
 }

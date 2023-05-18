@@ -1,5 +1,6 @@
 package org.example.view;
 
+import org.example.controller.ProgramController;
 import org.example.model.Sender;
 
 import javax.swing.*;
@@ -8,45 +9,44 @@ import java.awt.*;
 import java.util.List;
 
 public class SenderPanel extends JPanel {
-
     private List<Sender> senderPool;
+    private SenderWindow window;
     private JButton minusBut = new JButton("-");
-    {
+    private JButton plusBut = new JButton("+");
+
+    public SenderPanel() {
+        super();
+        plusBut.setSize(new Dimension(40, 40));
+        plusBut.addActionListener(e -> createMessageWindow());
+        plusBut.setVisible(true);
+
         minusBut.setSize(new Dimension(40, 40));
-        minusBut.setVisible(true);
         minusBut.addActionListener(e -> {
             if (senderPool.isEmpty()) return;
             senderPool.remove(senderPool.size() - 1);
             removeAndRepaint();
         });
-        this.add(minusBut);
-    }
+        minusBut.setVisible(true);
 
-    private JButton plusBut = new JButton("+");
-    {
-        plusBut.setSize(new Dimension(40, 40));
-        plusBut.setVisible(true);
-        plusBut.addActionListener(e -> {
-            Sender plus1 = new Sender("S" + (senderPool.size() + 1), 40, 40);
-            senderPool.add(plus1);
-            removeAndRepaint();
-        });
         this.add(plusBut);
-    }
-
-    public SenderPanel() {
-        super();
+        this.add(minusBut);
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        this.setFocusCycleRoot(true);
         this.setVisible(true);
     }
 
-    private void removeAndRepaint() {
+    private void createMessageWindow() {
+        if (window != null) window.dispose();
+        window = new SenderWindow();
+        removeAndRepaint();
+    }
+
+    public void removeAndRepaint() {
         removeAll();
         add(plusBut);
         add(minusBut);
+        addSenderPoolToPanel();
         revalidate();
         repaint();
     }
@@ -67,10 +67,5 @@ public class SenderPanel extends JPanel {
     private void addSenderPoolToPanel() {
         if (!senderPool.isEmpty()) senderPool.forEach(this::add);
     }
-
-    public synchronized List<Sender> getNewData() {
-        return senderPool;
-    }
-
 }
 

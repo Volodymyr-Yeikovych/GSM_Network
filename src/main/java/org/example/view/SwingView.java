@@ -14,15 +14,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SwingView extends JFrame implements View {
 
-    private ReceiverPanel receiverPanel = new ReceiverPanel();
     private SenderPanel senderPanel = new SenderPanel();
+    private ReceiverPanel receiverPanel = new ReceiverPanel();
     private SenderBTSPanel senderBTSPanel;
     private ReceiverBTSPanel receiverBTSPanel;
 
     private List<BSCPanel> bscPanelLayers = new CopyOnWriteArrayList<>();
     private JButton addBSC = new JButton("+");
-
-    {
+    private JButton deleteBSC = new JButton("-");
+    public SwingView() {
+        super();
         addBSC.setVisible(true);
         addBSC.addActionListener(e -> {
             int layer = bscPanelLayers.size() + 1;
@@ -34,11 +35,7 @@ public class SwingView extends JFrame implements View {
             getContentPane().revalidate();
             getContentPane().repaint();
         });
-    }
 
-    private JButton deleteBSC = new JButton("-");
-
-    {
         deleteBSC.setVisible(true);
         deleteBSC.addActionListener(e -> {
             if (!bscPanelLayers.isEmpty()) {
@@ -49,10 +46,12 @@ public class SwingView extends JFrame implements View {
                 getContentPane().repaint();
             }
         });
-    }
 
-    public SwingView() {
-        super();
+        this.setSize(1080, 1080);
+        this.setResizable(false);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLayout(new GridLayout(1, 0));
+        this.setVisible(true);
     }
 
     @Override
@@ -110,27 +109,10 @@ public class SwingView extends JFrame implements View {
     }
 
     @Override
-    public void display() {
-
-    }
-
-    @Override
-    public void setUp() {
-        this.setSize(1080, 1080);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLayout(new GridLayout(1, 0));
-        this.setFocusCycleRoot(true);
-        this.setVisible(true);
-    }
-
-    @Override
-    public List<Receiver> updateReceivers() {
-        return receiverPanel.getNewData();
-    }
-
-    @Override
-    public List<Sender> updateSenders() {
-        return senderPanel.getNewData();
+    public void repaint() {
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
+        senderPanel.removeAndRepaint();
     }
 
     @Override
@@ -141,4 +123,5 @@ public class SwingView extends JFrame implements View {
         }
         return bscLayers;
     }
+
 }

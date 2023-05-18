@@ -12,10 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProgramController {
-
     private final View view;
-    private List<Sender> senderPool = new CopyOnWriteArrayList<>();
-    private List<Receiver> receiverPool = new CopyOnWriteArrayList<>();
+    /** REFACTOR: transfer sender pool to Sender panel remove logic from this class related to sender
+        encapsulate logic in Sender panel class **/
+    private static List<Sender> senderPool = new CopyOnWriteArrayList<>();
+    private static List<Receiver> receiverPool = new CopyOnWriteArrayList<>();
     private final BTC senderStation = new BTC("S");
     private final BTC receiverStation = new BTC("R");
     private Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
@@ -28,35 +29,36 @@ public class ProgramController {
         List<BSC> firstLayer = new CopyOnWriteArrayList<>();
         firstLayer.add(new BSC("BSC1:1"));
         bscLayerPool.put(1, firstLayer);
-        addSender(new Sender("S1", 40, 40));
-        addSender(new Sender("S2", 40, 40));
-        addSender(new Sender("S3", 40, 40));
-        addSender(new Sender("S4", 40, 40));
-        addSender(new Sender("S5", 40, 40));
-        addSender(new Sender("S6", 40, 40));
-        addReceiver(new Receiver("R1", 40, 40));
-        addReceiver(new Receiver("R2", 40, 40));
+        addSender(new Sender("S1", "m1"));
+        addSender(new Sender("S2", "m2"));
+        addSender(new Sender("S3", "m3"));
+        addSender(new Sender("S4", "m4"));
+        addSender(new Sender("S5", "m5"));
+        addSender(new Sender("S6", "m6"));
+        addReceiver(new Receiver("R1"));
+        addReceiver(new Receiver("R2"));
     }
 
     public void start() throws InterruptedException {
         this.setUp();
+        view.displaySenders(senderPool);
+        view.displaySenderBTS(senderStation);
+        view.displayAddBSCButton();
+        view.displayBSC(bscLayerPool);
+        view.displayDeleteBSCButton();
+        view.displayReceiverBTS(receiverStation);
+        view.displayReceivers(receiverPool);
         while (true) {
-            view.displaySenders(senderPool);
-            view.displaySenderBTS(senderStation);
-            view.displayAddBSCButton();
-            view.displayBSC(bscLayerPool);
-            view.displayDeleteBSCButton();
-            view.displayReceiverBTS(receiverStation);
-            view.displayReceivers(receiverPool);
-            view.setUp();
-            receiverPool = view.updateReceivers();
-            senderPool = view.updateSenders();
-            bscLayerPool = view.updateBSCes();
-            Thread.sleep(100);
+            view.repaint();
+            Thread.sleep(400);
         }
     }
 
-    public void addSender(Sender sender) {
+    public static List<Sender> getSenderPool() {
+        return senderPool;
+    }
+
+    public static void addSender(Sender sender) {
         senderPool.add(sender);
     }
 
