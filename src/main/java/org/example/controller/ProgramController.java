@@ -26,7 +26,7 @@ public class ProgramController {
 
     private void setUp() {
         List<BSC> firstLayer = new CopyOnWriteArrayList<>();
-        firstLayer.add(new BSC("BSC1:1", BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE));
+        firstLayer.add(new BSC("BSC1:1"));
         bscLayerPool.put(1, firstLayer);
         addSender(new Sender("S1", 40, 40));
         addSender(new Sender("S2", 40, 40));
@@ -38,29 +38,21 @@ public class ProgramController {
         addReceiver(new Receiver("R2", 40, 40));
     }
 
-    public void start() {
+    public void start() throws InterruptedException {
         this.setUp();
-        view.displaySenders(senderPool);
-        view.displaySenderBaseTransceiverStation(senderStation);
-        view.displayBaseStationController(bscLayerPool);
-        view.displayReceiverBaseTransceiverStation(receiverStation);
-        view.displayReceivers(receiverPool);
-        view.displayAddSenderButton();
-        view.displayDeleteSenderButton();
-        view.displayAddBSCButton();
-        view.displayDeleteBSCButton();
-        view.displayAddReceiverButton();
-        view.displayDeleteReceiverButton();
         while (true) {
             view.displaySenders(senderPool);
-            view.displaySenderBaseTransceiverStation(senderStation);
-            view.displayBaseStationController(bscLayerPool);
-            view.displayReceiverBaseTransceiverStation(receiverStation);
+            view.displaySenderBTS(senderStation);
+            view.displayAddBSCButton();
+            view.displayBSC(bscLayerPool);
+            view.displayDeleteBSCButton();
+            view.displayReceiverBTS(receiverStation);
             view.displayReceivers(receiverPool);
             view.setUp();
             receiverPool = view.updateReceivers();
             senderPool = view.updateSenders();
             bscLayerPool = view.updateBSCes();
+            Thread.sleep(100);
         }
     }
 
@@ -82,13 +74,13 @@ public class ProgramController {
 
     private void addBSCToLayer(int layer) {
         var bscPool = bscLayerPool.get(layer);
-        bscPool.add(new BSC("BSC" + layer + ":" + bscPool.size(), BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE));
+        bscPool.add(new BSC("BSC" + layer + ":" + bscPool.size()));
     }
 
     public void addBSCLayer() {
         List<BSC> bscPool = new CopyOnWriteArrayList<>();
         int lastKey = bscLayerPool.keySet().stream().max(Integer::compare).orElseThrow() + 1;
-        bscPool.add(new BSC("BSC" + lastKey + ":1", BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE));
+        bscPool.add(new BSC("BSC" + lastKey + ":1"));
         bscLayerPool.put(lastKey, bscPool);
     }
 

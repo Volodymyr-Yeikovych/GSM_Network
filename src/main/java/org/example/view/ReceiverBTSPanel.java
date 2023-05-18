@@ -25,4 +25,8 @@ public class ReceiverBTSPanel extends JPanel {
         super.paintComponent(g);
         receiverBTS.paintComponents(g);
     }
+
+    public BTC getReceiverBTS() {
+        return receiverBTS;
+    }
 }

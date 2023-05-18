@@ -26,5 +26,7 @@ public class SenderBTSPanel extends JPanel {
         senderBTS.paintComponents(g);
     }
 
-
+    public BTC getSenderBTS() {
+        return senderBTS;
+    }
 }

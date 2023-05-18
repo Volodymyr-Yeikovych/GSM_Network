@@ -12,13 +12,9 @@ public interface View{
 
     void displaySenders(List<Sender> senderList);
     void displayReceivers(List<Receiver> receiverList);
-    void displayAddSenderButton();
-    void displayDeleteSenderButton();
-    void displayAddReceiverButton();
-    void displayDeleteReceiverButton();
-    void displayBaseStationController(Map<Integer, List<BSC>> bscLayerPool);
-    void displaySenderBaseTransceiverStation(BTC bts);
-    void displayReceiverBaseTransceiverStation(BTC bts);
+    void displayBSC(Map<Integer, List<BSC>> bscLayerPool);
+    void displaySenderBTS(BTC bts);
+    void displayReceiverBTS(BTC bts);
     void displayAddBSCButton();
     void displayDeleteBSCButton();
     void display();

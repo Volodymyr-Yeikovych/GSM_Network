@@ -11,8 +11,6 @@ import java.util.Map;
 
 public class BSCPanel extends JPanel{
     private List<BSC> bscPool;
-    private JButton plusBut;
-    private JButton minusBut;
     private int layer;
 
     public BSCPanel(int layer) {
@@ -36,33 +34,8 @@ public class BSCPanel extends JPanel{
         addBSCLayerToPanel();
     }
 
-    private void addBSCLayerToPanel() {
+    public void addBSCLayerToPanel() {
         if (!bscPool.isEmpty()) bscPool.forEach(this::add);
-    }
-
-    public void addPlusButton(JButton plus) {
-        plusBut = plus;
-        plusBut.setSize(new Dimension(BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE));
-        plusBut.setVisible(true);
-        plusBut.addActionListener(e -> {
-            String name = String.format("BSC%s:%s", layer, bscPool.size());
-            BSC plus1 = new BSC(name, BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE);
-            bscPool.add(plus1);
-            update();
-        });
-        this.add(plusBut);
-    }
-
-    public void addMinusButton(JButton minus) {
-        minusBut = minus;
-        minusBut.setSize(new Dimension(BSC.DEFAULT_SIDE_SIZE, BSC.DEFAULT_SIDE_SIZE));
-        minusBut.setVisible(true);
-        minusBut.addActionListener(e -> {
-            if (bscPool.isEmpty()) return;
-            bscPool.remove(bscPool.size() - 1);
-            update();
-        });
-        this.add(minusBut);
     }
 
     public synchronized List<BSC> getNewData() {
@@ -71,14 +44,6 @@ public class BSCPanel extends JPanel{
 
     public int getLayer() {
         return layer;
-    }
-
-    private void update() {
-        removeAll();
-        add(plusBut);
-        add(minusBut);
-        revalidate();
-        repaint();
     }
 
     @Override
