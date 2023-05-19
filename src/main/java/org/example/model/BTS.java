@@ -12,7 +12,7 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private Queue<Message> messages = new ArrayBlockingQueue<>(999999);
+    private final Queue<Message> messages = new ArrayBlockingQueue<>(999999);
     private static final String DEFAULT_NAME = "BTS";
     private static final int DEFAULT_SIDE_SIZE = 60;
     private static final long DEFAULT_SLEEPING_TIME = 1000L;
