@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.service.BscService;
+import org.example.service.ReceiverService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,13 +13,15 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
+    private final boolean isSenderBTS;
     private final Queue<Message> messages = new ArrayBlockingQueue<>(999999);
     private static final String DEFAULT_NAME = "BTS";
     private static final int DEFAULT_SIDE_SIZE = 60;
     private static final long DEFAULT_SLEEPING_TIME = 1000L;
 
-    public BTS(String text) {
+    public BTS(String text, boolean isSenderBTS) {
         super(DEFAULT_NAME + ": " + text);
+        this.isSenderBTS = isSenderBTS;
         this.setEditable(false);
         this.setPreferredSize(new Dimension(DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE));
         this.setVisible(true);
@@ -71,7 +74,8 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     if (paused || terminated) break;
                     Message toProcess = messages.poll();
                     if (toProcess == null) break;
-                    BscService.passMessageToAvailableBsc(toProcess);
+                    if (isSenderBTS) BscService.passMessageToAvailableBsc(toProcess);
+                    else ReceiverService.passMessageToReceiver(toProcess);
                     System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }

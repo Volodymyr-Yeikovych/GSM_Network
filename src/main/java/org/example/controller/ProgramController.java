@@ -12,8 +12,8 @@ public class ProgramController {
     private final View view;
     private static List<Sender> senderPool = new CopyOnWriteArrayList<>();
     private static List<Receiver> receiverPool = new CopyOnWriteArrayList<>();
-    private static final BTS senderBTS = new BTS("S");
-    private static final BTS receiverBTS = new BTS("R");
+    private static final BTS senderBTS = new BTS("S", true);
+    private static final BTS receiverBTS = new BTS("R", false);
     private static Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
 
     public ProgramController(View view) {
