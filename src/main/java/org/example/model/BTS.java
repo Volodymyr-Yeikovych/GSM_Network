@@ -37,7 +37,19 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
     }
 
     public void handle(Message message) {
-        messages.offer(message);
+        boolean handled = messages.offer(message);
+        if (!handled) {
+            for (int i = 0; i < 3; i++) {
+                if (handled) break;
+                try {
+                    Thread.sleep(1000);
+                    handled = messages.offer(message);
+                } catch (InterruptedException e) {
+                    System.out.println(DEFAULT_NAME + " Exception caught while sleeping in handling");
+                }
+            }
+        }
+        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
     }
 
     @Override
