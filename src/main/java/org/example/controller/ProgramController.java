@@ -1,9 +1,6 @@
 package org.example.controller;
 
-import org.example.model.BSC;
-import org.example.model.BTC;
-import org.example.model.Receiver;
-import org.example.model.Sender;
+import org.example.model.*;
 import org.example.view.View;
 
 import java.util.List;
@@ -13,13 +10,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProgramController {
     private final View view;
-    /** REFACTOR: transfer sender pool to Sender panel remove logic from this class related to sender
-        encapsulate logic in Sender panel class **/
     private static List<Sender> senderPool = new CopyOnWriteArrayList<>();
     private static List<Receiver> receiverPool = new CopyOnWriteArrayList<>();
-    private final BTC senderStation = new BTC("S");
-    private final BTC receiverStation = new BTC("R");
-    private Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
+    private static final BTS senderBTS = new BTS("S");
+    private static final BTS receiverBTS = new BTS("R");
+    private static Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
 
     public ProgramController(View view) {
         this.view = view;
@@ -42,11 +37,11 @@ public class ProgramController {
     public void start() throws InterruptedException {
         this.setUp();
         view.displaySenders(senderPool);
-        view.displaySenderBTS(senderStation);
+        view.displaySenderBTS(senderBTS);
         view.displayAddBSCButton();
         view.displayBSC(bscLayerPool);
         view.displayDeleteBSCButton();
-        view.displayReceiverBTS(receiverStation);
+        view.displayReceiverBTS(receiverBTS);
         view.displayReceivers(receiverPool);
         while (true) {
             view.repaint();
@@ -54,39 +49,55 @@ public class ProgramController {
         }
     }
 
-    public static List<Sender> getSenderPool() {
+    public synchronized static List<Sender> getSenderPool() {
         return senderPool;
     }
 
-    public static void addSender(Sender sender) {
+    public synchronized static void addSender(Sender sender) {
         senderPool.add(sender);
     }
 
-    public void addReceiver(Receiver receiver) {
+    public synchronized void addReceiver(Receiver receiver) {
         receiverPool.add(receiver);
     }
 
-    public void removeSender(Sender sender) {
+    public synchronized static void removeSender(Sender sender) {
         senderPool.remove(sender);
     }
 
-    public void removeReceiver(Receiver receiver) {
+    public synchronized static void removeReceiver(Receiver receiver) {
         receiverPool.remove(receiver);
     }
 
-    private void addBSCToLayer(int layer) {
+    private synchronized static void addBSCToLayer(int layer) {
         var bscPool = bscLayerPool.get(layer);
         bscPool.add(new BSC("BSC" + layer + ":" + bscPool.size()));
     }
 
-    public void addBSCLayer() {
-        List<BSC> bscPool = new CopyOnWriteArrayList<>();
-        int lastKey = bscLayerPool.keySet().stream().max(Integer::compare).orElseThrow() + 1;
-        bscPool.add(new BSC("BSC" + lastKey + ":1"));
-        bscLayerPool.put(lastKey, bscPool);
+    public synchronized static void removeBCSLayer(int layer) {
+        bscLayerPool.remove(layer);
     }
 
-    public void removeBCSLayer(int layer) {
-        bscLayerPool.remove(layer);
+    public synchronized static void addBSCLayer() {
+        int layer = (bscLayerPool.size() + 1);
+        List<BSC> nextLayer = new CopyOnWriteArrayList<>();
+        nextLayer.add(new BSC("BSC" + layer + ":1"));
+        bscLayerPool.put(layer, nextLayer);
+    }
+
+    public synchronized static void removeLastBSCLayer() {
+        removeBCSLayer(bscLayerPool.size() - 1);
+    }
+
+    public synchronized static List<BSC> getBSCLayer(int layer) {
+        return bscLayerPool.get(layer);
+    }
+
+    public synchronized static BTS getSenderBTS() {
+        return senderBTS;
+    }
+
+    public synchronized static void sendMessageToBSC(Message message) {
+        // processing message, passing through all bsc layers ->>,<<-
     }
 }

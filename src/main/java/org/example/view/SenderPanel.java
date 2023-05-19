@@ -1,7 +1,7 @@
 package org.example.view;
 
-import org.example.controller.ProgramController;
 import org.example.model.Sender;
+import org.example.service.SenderService;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -9,13 +9,16 @@ import java.awt.*;
 import java.util.List;
 
 public class SenderPanel extends JPanel {
+    private SenderService senderService;
     private List<Sender> senderPool;
     private SenderWindow window;
     private JButton minusBut = new JButton("-");
     private JButton plusBut = new JButton("+");
 
-    public SenderPanel() {
+    public SenderPanel(SenderService senderService) {
         super();
+        this.senderService = senderService;
+
         plusBut.setSize(new Dimension(40, 40));
         plusBut.addActionListener(e -> createMessageWindow());
         plusBut.setVisible(true);
@@ -38,7 +41,7 @@ public class SenderPanel extends JPanel {
 
     private void createMessageWindow() {
         if (window != null) window.dispose();
-        window = new SenderWindow();
+        window = new SenderWindow(senderService);
         removeAndRepaint();
     }
 
@@ -59,7 +62,7 @@ public class SenderPanel extends JPanel {
         minusBut.paintComponents(g);
     }
 
-    public synchronized void addSenders(List<Sender> senderList) {
+    public synchronized void setSenders(List<Sender> senderList) {
         senderPool = senderList;
         addSenderPoolToPanel();
     }

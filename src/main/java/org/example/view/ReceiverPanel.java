@@ -38,7 +38,7 @@ public class ReceiverPanel extends JPanel {
         this.setVisible(true);
     }
 
-    private void removeAndRepaint() {
+    public void removeAndRepaint() {
         removeAll();
         add(plusBut);
         add(minusBut);

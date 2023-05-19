@@ -1,15 +1,15 @@
 package org.example.view;
 
-import org.example.model.BTC;
+import org.example.model.BTS;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 public class SenderBTSPanel extends JPanel {
-    private BTC senderBTS;
+    private BTS senderBTS;
 
-    public SenderBTSPanel(BTC senderBTS) {
+    public SenderBTSPanel(BTS senderBTS) {
         super();
         this.senderBTS = senderBTS;
         this.setPreferredSize(new Dimension(70, 70));
@@ -26,7 +26,7 @@ public class SenderBTSPanel extends JPanel {
         senderBTS.paintComponents(g);
     }
 
-    public BTC getSenderBTS() {
+    public BTS getSenderBTS() {
         return senderBTS;
     }
 }

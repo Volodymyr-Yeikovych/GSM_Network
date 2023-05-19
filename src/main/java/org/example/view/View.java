@@ -1,7 +1,7 @@
 package org.example.view;
 
 import org.example.model.BSC;
-import org.example.model.BTC;
+import org.example.model.BTS;
 import org.example.model.Receiver;
 import org.example.model.Sender;
 
@@ -13,10 +13,9 @@ public interface View{
     void displaySenders(List<Sender> senderList);
     void displayReceivers(List<Receiver> receiverList);
     void displayBSC(Map<Integer, List<BSC>> bscLayerPool);
-    void displaySenderBTS(BTC bts);
-    void displayReceiverBTS(BTC bts);
+    void displaySenderBTS(BTS bts);
+    void displayReceiverBTS(BTS bts);
     void displayAddBSCButton();
     void displayDeleteBSCButton();
     void repaint();
-    Map<Integer, List<BSC>> updateBSCes();
 }

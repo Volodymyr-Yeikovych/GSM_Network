@@ -1,16 +1,20 @@
 package org.example.view;
 
 import org.example.listeners.CreateSenderOnClickListener;
+import org.example.service.SenderService;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class SenderWindow extends JFrame{
+    private SenderService senderService;
     private JTextArea messageField = new JTextArea();
     private JButton okBut = new JButton("OK");
 
     private JSlider msgFreq = new JSlider();
-    public SenderWindow() {
+    public SenderWindow(SenderService senderService) {
+        this.senderService = senderService;
+
         msgFreq.setMajorTickSpacing(10);
         msgFreq.setMinorTickSpacing(5);
         msgFreq.setPaintTrack(true);
@@ -28,7 +32,7 @@ public class SenderWindow extends JFrame{
         messageField.setVisible(true);
 
         okBut.setBounds(100, 140, 60, 60);
-        okBut.addActionListener(new CreateSenderOnClickListener(messageField, msgFreq));
+        okBut.addActionListener(new CreateSenderOnClickListener(messageField, msgFreq, senderService));
         okBut.setVisible(true);
 
         this.getContentPane().add(messageField);
