@@ -1,6 +1,7 @@
 package org.example.view;
 
 import org.example.model.Receiver;
+import org.example.service.ReceiverService;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -17,6 +18,7 @@ public class ReceiverPanel extends JPanel {
         plusBut.setVisible(true);
         plusBut.addActionListener(e -> {
             Receiver plus1 = new Receiver("R" + (receiverPool.size() + 1));
+            new Thread(plus1).start();
             receiverPool.add(plus1);
             removeAndRepaint();
         });
@@ -25,7 +27,9 @@ public class ReceiverPanel extends JPanel {
         minusBut.setVisible(true);
         minusBut.addActionListener(e -> {
             if (receiverPool.isEmpty()) return;
-            receiverPool.remove(receiverPool.size() - 1);
+            Receiver toRemove = receiverPool.get(receiverPool.size() - 1);
+            toRemove.terminate();
+            receiverPool.remove(toRemove);
             removeAndRepaint();
         });
 

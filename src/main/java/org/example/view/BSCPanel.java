@@ -1,13 +1,11 @@
 package org.example.view;
 
 import org.example.model.BSC;
-import org.example.model.Sender;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.util.List;
-import java.util.Map;
 
 public class BSCPanel extends JPanel{
     private List<BSC> bscPool;
@@ -38,7 +36,7 @@ public class BSCPanel extends JPanel{
         if (!bscPool.isEmpty()) bscPool.forEach(this::add);
     }
 
-    public synchronized List<BSC> getNewData() {
+    public synchronized List<BSC> getBSCPool() {
         return bscPool;
     }
 

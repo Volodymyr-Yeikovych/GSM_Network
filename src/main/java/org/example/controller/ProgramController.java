@@ -1,22 +1,23 @@
 package org.example.controller;
 
+import org.example.exception.ReceiverOutOfReachException;
 import org.example.model.*;
 import org.example.view.View;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProgramController {
     private final View view;
+    private static Set<String> phoneNumbersPool = ConcurrentHashMap.newKeySet();
     private static List<Sender> senderPool = new CopyOnWriteArrayList<>();
     private static List<Receiver> receiverPool = new CopyOnWriteArrayList<>();
     private static final BTS senderBTS = new BTS("S", true);
     private static final BTS receiverBTS = new BTS("R", false);
     private static Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
 
-    public ProgramController(View view) {
+    public ProgramController(View view) throws InterruptedException {
         this.view = view;
     }
 
@@ -24,14 +25,8 @@ public class ProgramController {
         List<BSC> firstLayer = new CopyOnWriteArrayList<>();
         firstLayer.add(new BSC("BSC1:1"));
         bscLayerPool.put(1, firstLayer);
-        addSender(new Sender("S1", "m1"));
-        addSender(new Sender("S2", "m2"));
-        addSender(new Sender("S3", "m3"));
-        addSender(new Sender("S4", "m4"));
-        addSender(new Sender("S5", "m5"));
-        addSender(new Sender("S6", "m6"));
         addReceiver(new Receiver("R1"));
-        addReceiver(new Receiver("R2"));
+        addSender(new Sender("S1", "m1"));
     }
 
     public void start() throws InterruptedException {
@@ -43,21 +38,39 @@ public class ProgramController {
         view.displayDeleteBSCButton();
         view.displayReceiverBTS(receiverBTS);
         view.displayReceivers(receiverPool);
+        threadsStart();
         while (true) {
             view.repaint();
             Thread.sleep(400);
         }
     }
 
+    private void threadsStart() {
+        senderPool.forEach(sender -> new Thread(sender).start());
+        new Thread(senderBTS).start();
+        for (int i = 1; i <= bscLayerPool.size(); i++) {
+            for (BSC bsc : bscLayerPool.get(i)) new Thread(bsc).start();
+        }
+        new Thread(receiverBTS).start();
+        receiverPool.forEach(receiver -> new Thread(receiver).start());
+    }
+
     public synchronized static List<Sender> getSenderPool() {
         return senderPool;
     }
+    public synchronized static List<Receiver> getReceiverPool() {
+        return receiverPool;
+    }
 
-    public synchronized static void addSender(Sender sender) {
+    public synchronized static Set<String> getPhoneNumbersPool() {
+        return phoneNumbersPool;
+    }
+
+    public static void addSender(Sender sender) {
         senderPool.add(sender);
     }
 
-    public synchronized void addReceiver(Receiver receiver) {
+    public void addReceiver(Receiver receiver) {
         receiverPool.add(receiver);
     }
 
@@ -81,7 +94,9 @@ public class ProgramController {
     public synchronized static void addBSCLayer() {
         int layer = (bscLayerPool.size() + 1);
         List<BSC> nextLayer = new CopyOnWriteArrayList<>();
-        nextLayer.add(new BSC("BSC" + layer + ":1"));
+        BSC bsc = new BSC("BSC" + layer + ":1");
+        new Thread(bsc).start();
+        nextLayer.add(bsc);
         bscLayerPool.put(layer, nextLayer);
     }
 
@@ -97,7 +112,52 @@ public class ProgramController {
         return senderBTS;
     }
 
-    public synchronized static void sendMessageToBSC(Message message) {
-        // processing message, passing through all bsc layers ->>,<<-
+    public synchronized static BTS getReceiverBTS() {
+        return receiverBTS;
     }
+
+    public synchronized static void sendMessageToBSC(Message message) {
+        for (int i = 1; i <= bscLayerPool.size(); i++) {
+            BSC bsc = getLeastBusyBSCFromLayer(i);
+            bsc.handle(message);
+        }
+    }
+    public synchronized static void sendMessageToReceiver(Message message) {
+        receiverPool.stream()
+                .filter(receiver -> receiver.getPhone().equals(message.getReceiverPhone()))
+                .min(Comparator.comparing(Receiver::getPhone))
+                .orElseThrow(() -> new ReceiverOutOfReachException("Receiver was not found"))
+                .handle(message);
+    }
+
+    private static BSC getLeastBusyBSCFromLayer(int layer) {
+        BSC min = bscLayerPool.get(layer).get(0);
+        for (BSC bsc : bscLayerPool.get(layer)) {
+            if (bsc.getQueueSize() < min.getQueueSize()) min = bsc;
+        }
+        return min;
+    }
+
+    public synchronized static int getBSCSize() {
+        return bscLayerPool.size();
+    }
+
+    public synchronized static String generatePhoneNum() {
+        StringBuilder builder = new StringBuilder();
+        boolean freeNum = false;
+        while (!freeNum) {
+            for (int i = 0; i < 9; i++) {
+                int rand = new Random().nextInt(0, 10);
+                builder.append(rand);
+            }
+            if (phoneNumbersPool.contains(builder.toString())) {
+                continue;
+            } else {
+                freeNum = true;
+                phoneNumbersPool.add(builder.toString());
+            }
+        }
+        return builder.toString();
+    }
+
 }

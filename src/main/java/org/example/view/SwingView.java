@@ -18,7 +18,7 @@ public class SwingView extends JFrame implements View {
     private SenderService senderService;
     private BscService bscService;
     private SenderPanel senderPanel;
-    private ReceiverPanel receiverPanel = new ReceiverPanel();
+    private ReceiverPanel receiverPanel;
     private SenderBTSPanel senderBTSPanel;
     private ReceiverBTSPanel receiverBTSPanel;
     private List<BSCPanel> bscPanelLayers = new CopyOnWriteArrayList<>();
@@ -29,6 +29,7 @@ public class SwingView extends JFrame implements View {
         this.senderService = senderService;
         this.bscService = bscService;
         this.senderPanel = new SenderPanel(senderService);
+        this.receiverPanel  = new ReceiverPanel();
 
         addBSC.setVisible(true);
         addBSC.addActionListener(e -> {
@@ -50,6 +51,7 @@ public class SwingView extends JFrame implements View {
     private void removeBSCLayer() {
         if (!bscPanelLayers.isEmpty()) {
             BSCPanel toRemove = bscPanelLayers.get(bscPanelLayers.size() - 1);
+            toRemove.getBSCPool().forEach(BSC::terminate);
             bscPanelLayers.remove(toRemove);
             this.getContentPane().remove(toRemove);
             loadBSCToPanel();

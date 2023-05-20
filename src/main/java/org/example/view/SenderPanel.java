@@ -12,27 +12,27 @@ public class SenderPanel extends JPanel {
     private SenderService senderService;
     private List<Sender> senderPool;
     private SenderWindow window;
-    private JButton minusBut = new JButton("-");
     private JButton plusBut = new JButton("+");
 
     public SenderPanel(SenderService senderService) {
         super();
         this.senderService = senderService;
 
-        plusBut.setSize(new Dimension(40, 40));
+        plusBut.setSize(new Dimension(50, 50));
         plusBut.addActionListener(e -> createMessageWindow());
         plusBut.setVisible(true);
 
-        minusBut.setSize(new Dimension(40, 40));
-        minusBut.addActionListener(e -> {
-            if (senderPool.isEmpty()) return;
-            senderPool.remove(senderPool.size() - 1);
-            removeAndRepaint();
-        });
-        minusBut.setVisible(true);
+//        minusBut.setSize(new Dimension(50, 50));
+//        minusBut.addActionListener(e -> {
+//            if (senderPool.isEmpty()) return;
+//            Sender sender = senderPool.get(senderPool.size() - 1);
+//            sender.terminate();
+//            senderPool.remove(sender);
+//            removeAndRepaint();
+//        });
+//        minusBut.setVisible(true);
 
         this.add(plusBut);
-        this.add(minusBut);
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -42,13 +42,13 @@ public class SenderPanel extends JPanel {
     private void createMessageWindow() {
         if (window != null) window.dispose();
         window = new SenderWindow(senderService);
-        removeAndRepaint();
+//        removeAndRepaint();
     }
 
     public void removeAndRepaint() {
         removeAll();
         add(plusBut);
-        add(minusBut);
+//        add(minusBut);
         addSenderPoolToPanel();
         revalidate();
         repaint();
@@ -59,7 +59,7 @@ public class SenderPanel extends JPanel {
         super.paintComponent(g);
         senderPool.forEach(sender -> sender.paintComponents(g));
         plusBut.paintComponents(g);
-        minusBut.paintComponents(g);
+//        minusBut.paintComponents(g);
     }
 
     public synchronized void setSenders(List<Sender> senderList) {

@@ -10,7 +10,6 @@ public class SenderWindow extends JFrame{
     private SenderService senderService;
     private JTextArea messageField = new JTextArea();
     private JButton okBut = new JButton("OK");
-
     private JSlider msgFreq = new JSlider();
     public SenderWindow(SenderService senderService) {
         this.senderService = senderService;

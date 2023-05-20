@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.service.BscService;
+import org.example.service.BtsService;
 import org.example.service.ReceiverService;
 
 import javax.swing.*;
@@ -10,22 +11,21 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class BTS extends JTextField implements Runnable, PausableProcess {
 
+    private static final String DEFAULT_NAME = "BTS";
+    private static final int DEFAULT_SIDE_SIZE = 60;
+    private static final long DEFAULT_SLEEPING_TIME = 1000L;
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
     private final boolean isSenderBTS;
     private final Queue<Message> messages = new ArrayBlockingQueue<>(999999);
-    private static final String DEFAULT_NAME = "BTS";
-    private static final int DEFAULT_SIDE_SIZE = 60;
-    private static final long DEFAULT_SLEEPING_TIME = 1000L;
 
     public BTS(String text, boolean isSenderBTS) {
-        super(DEFAULT_NAME + ": " + text);
+        super(DEFAULT_NAME + ":" + text);
         this.isSenderBTS = isSenderBTS;
         this.setEditable(false);
         this.setPreferredSize(new Dimension(DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE));
         this.setVisible(true);
-        run();
     }
 
     @Override
@@ -53,6 +53,9 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
             }
         }
         if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        else {
+            System.out.println(message + " Handled by Sender BTS");
+        }
     }
 
     @Override
@@ -74,13 +77,14 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     if (paused || terminated) break;
                     Message toProcess = messages.poll();
                     if (toProcess == null) break;
-                    if (isSenderBTS) BscService.passMessageToAvailableBsc(toProcess);
+                    if (isSenderBTS) BtsService.passMessageToBsc(toProcess);
                     else ReceiverService.passMessageToReceiver(toProcess);
                     System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }
             } catch (InterruptedException e) {
                 System.out.println(DEFAULT_NAME + " Exception caught while sleeping");
+                break;
             }
         }
     }

@@ -1,24 +1,28 @@
 package org.example.model;
 
 import org.example.service.SenderService;
+import org.example.view.SenderSettingsWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
-public class Sender extends JTextField implements Runnable, PausableProcess {
-
+public class Sender extends JButton implements Runnable, PausableProcess {
+    private static final int DEFAULT_SIDE_SIZE = 50;
     private volatile boolean terminated = false;
-    private volatile boolean paused = true;
+    private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private static final int DEFAULT_SIDE_SIZE = 40;
+    private SenderSettingsWindow window;
     private String devNum;
     private int messageDelay;
     private Message message;
+    private String phone;
 
     public Sender(String devNum, String message) {
         super(devNum);
         this.devNum = devNum;
-        this.message = new Message(message);
+        this.phone = SenderService.generateRandomPhoneNum();
+        this.message = new Message(message, phone);
         this.messageDelay = 10;
         setUp();
     }
@@ -26,16 +30,22 @@ public class Sender extends JTextField implements Runnable, PausableProcess {
     public Sender(String devNum, String message, int messageDelay) {
         super(devNum);
         this.devNum = devNum;
+        this.phone = SenderService.generateRandomPhoneNum();
         this.messageDelay = messageDelay;
-        this.message = new Message(message);
+        this.message = new Message(message, phone);
         setUp();
     }
 
     private void setUp() {
-        this.setEditable(false);
+        this.addActionListener(e -> openSenderSettingsWindow());
         this.setPreferredSize(new Dimension(DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE));
         this.setVisible(true);
-        run();
+    }
+
+    private void openSenderSettingsWindow() {
+        if (window != null) window.dispose();
+        window = new SenderSettingsWindow(this);
+
     }
 
     @Override
@@ -64,7 +74,8 @@ public class Sender extends JTextField implements Runnable, PausableProcess {
                 if (terminated) break;
             }
             try {
-                if (paused || terminated) break;
+                if (terminated) break;
+                if (paused) continue;
                 SenderService.passMessageToBTS(message);
                 System.out.println(this.devNum + " SENT MESSAGE!!");
                 Thread.sleep(messageDelay * 1000L);
@@ -77,12 +88,14 @@ public class Sender extends JTextField implements Runnable, PausableProcess {
 
     @Override
     public void pause() {
+        System.out.println("Pausing sender {" + devNum + "}");
         paused = true;
     }
 
     @Override
     public void unPause() {
         synchronized (pauseLock) {
+            System.out.println("Unpausing sender {" + devNum + "}");
             paused = false;
             pauseLock.notifyAll();
         }
@@ -92,5 +105,17 @@ public class Sender extends JTextField implements Runnable, PausableProcess {
     public void terminate() {
         terminated = true;
         if (paused) unPause();
+    }
+
+    public int getMessageDelay() {
+        return messageDelay;
+    }
+
+    public void setMessageDelay(int messageDelay) {
+        this.messageDelay = messageDelay;
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 }
