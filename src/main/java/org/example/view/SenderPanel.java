@@ -22,16 +22,6 @@ public class SenderPanel extends JPanel {
         plusBut.addActionListener(e -> createMessageWindow());
         plusBut.setVisible(true);
 
-//        minusBut.setSize(new Dimension(50, 50));
-//        minusBut.addActionListener(e -> {
-//            if (senderPool.isEmpty()) return;
-//            Sender sender = senderPool.get(senderPool.size() - 1);
-//            sender.terminate();
-//            senderPool.remove(sender);
-//            removeAndRepaint();
-//        });
-//        minusBut.setVisible(true);
-
         this.add(plusBut);
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
@@ -42,13 +32,11 @@ public class SenderPanel extends JPanel {
     private void createMessageWindow() {
         if (window != null) window.dispose();
         window = new SenderWindow(senderService);
-//        removeAndRepaint();
     }
 
     public void removeAndRepaint() {
         removeAll();
         add(plusBut);
-//        add(minusBut);
         addSenderPoolToPanel();
         revalidate();
         repaint();
@@ -59,7 +47,6 @@ public class SenderPanel extends JPanel {
         super.paintComponent(g);
         senderPool.forEach(sender -> sender.paintComponents(g));
         plusBut.paintComponents(g);
-//        minusBut.paintComponents(g);
     }
 
     public synchronized void setSenders(List<Sender> senderList) {
