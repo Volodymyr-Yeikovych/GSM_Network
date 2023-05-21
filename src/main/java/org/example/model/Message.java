@@ -9,9 +9,9 @@ public class Message {
     private String receiverPhone;
 
     public Message(String message, String senderPhone) {
-        this.encryptedMessage = SmsEncryptionManager.encrypt(message);
         this.senderPhone = senderPhone;
         this.receiverPhone = ReceiverService.getRandomReceiverPhone();
+        this.encryptedMessage = SmsEncryptionManager.encrypt(message, senderPhone, receiverPhone);
     }
 
     public String getEncryptedMessage() {
