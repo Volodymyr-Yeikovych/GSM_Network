@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class BSC extends JTextField implements Runnable, PausableProcess{
+public class BSC extends JTextField implements Runnable, PausableProcess {
 
     private static final int DEFAULT_SIDE_SIZE = 50;
     private volatile boolean terminated = false;
@@ -15,6 +15,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess{
     private final Object pauseLock = new Object();
     private String name;
     private Queue<Message> processingPool = new ArrayBlockingQueue<>(999999);
+
     public BSC(String name) {
         super(name);
         this.name = name;
@@ -86,11 +87,12 @@ public class BSC extends JTextField implements Runnable, PausableProcess{
             try {
                 while (!processingPool.isEmpty()) {
                     if (paused || terminated) break;
+                    System.out.println("SIZE: {" + processingPool.size() + "}");
                     Message toProcess = processingPool.poll();
                     if (toProcess == null) break;
                     BscService.passMessageToBTS(toProcess);
                     System.out.println(name + " MessageProcessed{" + toProcess.getMessage() + "}");
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {
                 System.out.println(name + " Exception caught while sleeping");

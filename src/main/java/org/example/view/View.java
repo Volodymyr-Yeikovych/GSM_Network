@@ -5,6 +5,7 @@ import org.example.model.BTS;
 import org.example.model.Receiver;
 import org.example.model.Sender;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 

@@ -18,6 +18,11 @@ public class ReceiverService {
         ProgramController.sendMessageToReceiver(message);
     }
 
+    public static void removeReceiver(Receiver receiver) {
+        receiver.terminate();
+        ProgramController.removeReceiver(receiver);
+    }
+
     public static String getRandomReceiverPhone() {
         List<Receiver> receiverPool = ProgramController.getReceiverPool();
         int size = receiverPool.size();

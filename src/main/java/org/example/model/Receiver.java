@@ -1,21 +1,24 @@
 package org.example.model;
 
 import org.example.service.ReceiverService;
+import org.example.view.ReceiverSettingsWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Receiver extends JTextField implements Runnable, PausableProcess {
-    private static final int DEFAULT_SIDE_SIZE = 40;
+public class Receiver extends JButton implements Runnable, PausableProcess {
+    private static final int DEFAULT_SIDE_SIZE = 60;
     private static final int DEFAULT_TIME_OUT_S = 10;
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
+    private ReceiverSettingsWindow window;
     private String devNum;
     private boolean hasTimeOut;
     private String phone;
@@ -39,9 +42,15 @@ public class Receiver extends JTextField implements Runnable, PausableProcess {
     }
 
     private void setUp() {
-        this.setEditable(false);
+        this.addActionListener(e -> openSettingsWindow());
         this.setPreferredSize(new Dimension(DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE));
         this.setVisible(true);
+    }
+
+    private void openSettingsWindow() {
+        if (window != null) window.dispose();
+        window = new ReceiverSettingsWindow(this);
+
     }
 
     public void handle(Message message) {
@@ -129,5 +138,21 @@ public class Receiver extends JTextField implements Runnable, PausableProcess {
 
     public int getMessagePoolSize() {
         return receivedMessages.size();
+    }
+
+    public int getReceivedMsgPoolSize() {
+        return processedMessages.size();
+    }
+
+    public void setTimeOut(boolean hasTimeOut) {
+        this.hasTimeOut = hasTimeOut;
+    }
+
+    public boolean hasTimeOut() {
+        return hasTimeOut;
+    }
+
+    public boolean isTerminated() {
+        return terminated;
     }
 }

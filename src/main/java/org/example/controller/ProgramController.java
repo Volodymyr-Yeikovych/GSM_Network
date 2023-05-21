@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.exception.InvalidBscException;
 import org.example.exception.ReceiverOutOfReachException;
 import org.example.model.*;
 import org.example.view.View;
@@ -17,8 +18,20 @@ public class ProgramController {
     private static final BTS receiverBTS = new BTS("R", false);
     private static Map<Integer, List<BSC>> bscLayerPool = new ConcurrentHashMap<>();
 
-    public ProgramController(View view) throws InterruptedException {
+    public ProgramController(View view) {
         this.view = view;
+    }
+
+    public synchronized static void createBSC() {
+        List<Integer> layersSize = new ArrayList<>();
+        for (int i = 1; i <= bscLayerPool.size(); i++) {
+            layersSize.add(bscLayerPool.get(i).size());
+        }
+        int min = layersSize.stream()
+                .min(Integer::compareTo)
+                .orElseThrow(() -> new InvalidBscException("No BSC in pool to pass data."));
+        int layer = layersSize.indexOf(min) + 1;
+        addBSCToLayer(layer);
     }
 
     private void setUp() {
@@ -84,7 +97,9 @@ public class ProgramController {
 
     private synchronized static void addBSCToLayer(int layer) {
         var bscPool = bscLayerPool.get(layer);
-        bscPool.add(new BSC("BSC" + layer + ":" + bscPool.size()));
+        BSC toAdd = new BSC("BSC" + layer + ":" + bscPool.size());
+        new Thread(toAdd).start();
+        bscPool.add(toAdd);
     }
 
     public synchronized static void removeBCSLayer(int layer) {

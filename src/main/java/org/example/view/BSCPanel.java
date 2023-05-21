@@ -1,6 +1,7 @@
 package org.example.view;
 
 import org.example.model.BSC;
+import org.example.service.BscService;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -33,7 +34,19 @@ public class BSCPanel extends JPanel{
     }
 
     public void addBSCLayerToPanel() {
-        if (!bscPool.isEmpty()) bscPool.forEach(this::add);
+        if (!bscPool.isEmpty()) {
+            bscPool.forEach(bsc -> {
+                if (bsc.getQueueSize() > 5) BscService.createBSC();
+            });
+            bscPool.forEach(this::add);
+        }
+    }
+
+    public void removeAndRepaint() {
+        removeAll();
+        addBSCLayerToPanel();
+        revalidate();
+        repaint();
     }
 
     public synchronized List<BSC> getBSCPool() {

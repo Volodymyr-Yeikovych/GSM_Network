@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class Sender extends JButton implements Runnable, PausableProcess {
-    private static final int DEFAULT_SIDE_SIZE = 50;
+    private static final int DEFAULT_SIDE_SIZE = 60;
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();

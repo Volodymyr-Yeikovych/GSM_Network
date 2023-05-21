@@ -53,6 +53,7 @@ public class SwingView extends JFrame implements View {
             BSCPanel toRemove = bscPanelLayers.get(bscPanelLayers.size() - 1);
             toRemove.getBSCPool().forEach(BSC::terminate);
             bscPanelLayers.remove(toRemove);
+            BscService.removeBscLayer(toRemove.getLayer());
             this.getContentPane().remove(toRemove);
             loadBSCToPanel();
             update();
@@ -139,6 +140,9 @@ public class SwingView extends JFrame implements View {
     public void repaint() {
         update();
         senderPanel.removeAndRepaint();
+        bscPanelLayers.forEach(BSCPanel::removeAndRepaint);
         receiverPanel.removeAndRepaint();
     }
+
+
 }
