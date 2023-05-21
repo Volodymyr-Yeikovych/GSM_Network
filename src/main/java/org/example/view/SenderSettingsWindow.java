@@ -43,8 +43,10 @@ public class SenderSettingsWindow extends JFrame {
         devNumField.setVisible(true);
 
         senderState.setBounds(225, 0, 100, 40);
-        senderState.addItem("ACTIVE");
-        senderState.addItem("WAITING");
+        String first = sender.isPaused() ? "WAITING" : "ACTIVE";
+        String second = sender.isPaused() ? "ACTIVE" : "WAITING";
+        senderState.addItem(first);
+        senderState.addItem(second);
         senderState.addActionListener(e -> {
             Object source = ((JComboBox<?>) e.getSource()).getSelectedItem();
             if (source == null) throw new InvalidComboBoxParamException("Combo box source was null.");

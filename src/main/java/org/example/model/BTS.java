@@ -1,6 +1,5 @@
 package org.example.model;
 
-import org.example.service.BscService;
 import org.example.service.BtsService;
 import org.example.service.ReceiverService;
 
@@ -52,7 +51,7 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
         else {
             System.out.println(message + " Handled by Sender BTS");
         }
@@ -79,7 +78,7 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     if (toProcess == null) break;
                     if (isSenderBTS) BtsService.passMessageToBsc(toProcess);
                     else ReceiverService.passMessageToReceiver(toProcess);
-                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getMessage() + "}");
+                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
                     Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }
             } catch (InterruptedException e) {

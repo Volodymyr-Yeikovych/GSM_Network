@@ -5,9 +5,7 @@ import org.example.view.ReceiverSettingsWindow;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +64,7 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
     }
 
     @Override
@@ -98,17 +96,18 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
                 if (paused || terminated) break;
                 Message toProcess = receivedMessages.poll();
                 if (toProcess == null) break;
-                processedMessages.put(System.currentTimeMillis(), toProcess);
-                System.out.println(devNum + " MessageProcessed{" + toProcess.getMessage() + "}");
-                checkTimeOutTime();
+                processedMessages.put(System.currentTimeMillis() / 1000, toProcess);
+                System.out.println(devNum + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
             }
+            checkTimeOutTime();
         }
     }
 
-    private void checkTimeOutTime() {
+    private synchronized void checkTimeOutTime() {
         if (!hasTimeOut) return;
+        if (processedMessages.isEmpty()) return;
         for (Map.Entry<Long, Message> entry : processedMessages.entrySet()) {
-            if (System.currentTimeMillis() - entry.getKey() >= DEFAULT_TIME_OUT_S * 1000)
+            if ((System.currentTimeMillis() / 1000) - entry.getKey() >= DEFAULT_TIME_OUT_S)
                 processedMessages.remove(entry.getKey());
         }
     }

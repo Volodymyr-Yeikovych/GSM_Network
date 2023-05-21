@@ -48,7 +48,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
     }
 
     @Override
@@ -91,7 +91,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
                     Message toProcess = processingPool.poll();
                     if (toProcess == null) break;
                     BscService.passMessageToBTS(toProcess);
-                    System.out.println(name + " MessageProcessed{" + toProcess.getMessage() + "}");
+                    System.out.println(name + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
                     Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {

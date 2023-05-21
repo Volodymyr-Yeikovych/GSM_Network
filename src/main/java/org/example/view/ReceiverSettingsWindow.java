@@ -62,7 +62,6 @@ public class ReceiverSettingsWindow extends JFrame {
             while (!receiver.isTerminated()) {
                 try {
                     msgCount.setText("Messages count: {" + receiver.getReceivedMsgPoolSize() + "}");
-                    System.out.println("Setting counter");
                     removeAndRepaint();
                     Thread.sleep(400);
                 } catch (InterruptedException e) {
@@ -71,7 +70,7 @@ public class ReceiverSettingsWindow extends JFrame {
                 }
             }
             System.out.println("Aborting msg count update timer.");
-        });
+        }).start();
     }
 
     private void removeAndRepaint() {

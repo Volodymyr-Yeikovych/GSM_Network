@@ -11,7 +11,6 @@ import java.util.List;
 public class ReceiverPanel extends JPanel {
     private List<Receiver> receiverPool;
     private JButton plusBut = new JButton("+");
-    private JButton minusBut = new JButton("-");
     public ReceiverPanel() {
         super();
         plusBut.setSize(new Dimension(40, 40));
@@ -23,18 +22,7 @@ public class ReceiverPanel extends JPanel {
             removeAndRepaint();
         });
 
-        minusBut.setSize(new Dimension(40, 40));
-        minusBut.setVisible(true);
-        minusBut.addActionListener(e -> {
-            if (receiverPool.isEmpty()) return;
-            Receiver toRemove = receiverPool.get(receiverPool.size() - 1);
-            toRemove.terminate();
-            receiverPool.remove(toRemove);
-            removeAndRepaint();
-        });
-
         this.add(plusBut);
-        this.add(minusBut);
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -45,7 +33,6 @@ public class ReceiverPanel extends JPanel {
     public void removeAndRepaint() {
         removeAll();
         add(plusBut);
-        add(minusBut);
         addReceiverPoolToPanel();
         revalidate();
         repaint();
@@ -56,7 +43,6 @@ public class ReceiverPanel extends JPanel {
         super.paintComponent(g);
         receiverPool.forEach(sender -> sender.paintComponents(g));
         plusBut.paintComponents(g);
-        minusBut.paintComponents(g);
     }
 
     public synchronized void setReceiverPool(List<Receiver> senderList) {
