@@ -50,12 +50,12 @@ public class Sender extends JButton implements Runnable, PausableProcess {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawString(message.getEncryptedMessage(), DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE);
+        g.drawString(message.getMessage(), DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE);
     }
 
     @Override
     public String toString() {
-        return "Message: {" + message.getEncryptedMessage() + "} DevNum: {" + devNum + "} Delay: {" + messageDelay + "};";
+        return "Message: {" + message.getMessage() + "} DevNum: {" + devNum + "} Delay: {" + messageDelay + "};";
     }
 
     @Override
@@ -75,6 +75,7 @@ public class Sender extends JButton implements Runnable, PausableProcess {
             try {
                 if (terminated) break;
                 if (paused) continue;
+                message.incrementTimesPassed();
                 SenderService.passMessageToBTS(message);
                 System.out.println(this.devNum + " SENT MESSAGE!!");
                 Thread.sleep(messageDelay * 1000L);

@@ -1,5 +1,6 @@
 package org.example.model;
 
+import org.example.enc.SmsEncryptionManager;
 import org.example.service.BtsService;
 import org.example.service.ReceiverService;
 
@@ -51,7 +52,7 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
         else {
             System.out.println(message + " Handled by Sender BTS");
         }
@@ -76,9 +77,14 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     if (paused || terminated) break;
                     Message toProcess = messages.poll();
                     if (toProcess == null) break;
-                    if (isSenderBTS) BtsService.passMessageToBsc(toProcess);
-                    else ReceiverService.passMessageToReceiver(toProcess);
-                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
+                    if (isSenderBTS) {
+                        SmsEncryptionManager.encrypt(toProcess);
+                        BtsService.passMessageToBsc(toProcess);
+                    } else {
+                        SmsEncryptionManager.decrypt(toProcess);
+                        ReceiverService.passMessageToReceiver(toProcess);
+                    }
+                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }
             } catch (InterruptedException e) {

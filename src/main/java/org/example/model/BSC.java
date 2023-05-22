@@ -1,5 +1,6 @@
 package org.example.model;
 
+import org.example.enc.SmsEncryptionManager;
 import org.example.service.BscService;
 
 import javax.swing.*;
@@ -48,7 +49,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
     }
 
     @Override
@@ -87,11 +88,11 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
             try {
                 while (!processingPool.isEmpty()) {
                     if (paused || terminated) break;
-                    System.out.println("SIZE: {" + processingPool.size() + "}");
                     Message toProcess = processingPool.poll();
                     if (toProcess == null) break;
+                    SmsEncryptionManager.translateToSmsDeliverMessage(toProcess);
                     BscService.passMessageToBTS(toProcess);
-                    System.out.println(name + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
+                    System.out.println(name + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {

@@ -64,7 +64,7 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getEncryptedMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
     }
 
     @Override
@@ -97,7 +97,7 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
                 Message toProcess = receivedMessages.poll();
                 if (toProcess == null) break;
                 processedMessages.put(System.currentTimeMillis() / 1000, toProcess);
-                System.out.println(devNum + " MessageProcessed{" + toProcess.getEncryptedMessage() + "}");
+                System.out.println(devNum + " MessageProcessed{" + toProcess.getMessage() + "}");
             }
             checkTimeOutTime();
         }
