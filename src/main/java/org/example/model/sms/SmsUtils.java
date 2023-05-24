@@ -1,13 +1,25 @@
 package org.example.model.sms;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SmsUtils {
 
     private static int timesWritten = 0;
-    private static final String DEFAULT_SAVE_PATH = "C:\\Users\\Volodymyr\\IdeaProjects\\GSM_Network\\src\\main\\resources\\bin";
-    private static final String DEFAULT_FILENAME = "save.bin";
+    private static final File DEFAULT_SAVE_PATH = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\bin\\");
+    private static final File DEFAULT_FILENAME = new File("save.bin");
+
+    static {
+        if (!DEFAULT_SAVE_PATH.exists()) DEFAULT_SAVE_PATH.mkdir();
+        if (!DEFAULT_FILENAME.exists()) {
+            try {
+                DEFAULT_FILENAME.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static byte[] toPrimitive(Byte[] bytes) {
         byte[] primitive = new byte[bytes.length];
@@ -64,7 +76,7 @@ public class SmsUtils {
 
     public static void saveToFile(Byte[] msgTemp) {
         boolean append = timesWritten != 0;
-        try (FileOutputStream fos = new FileOutputStream(DEFAULT_SAVE_PATH + "\\" + DEFAULT_FILENAME, append)) {
+        try (FileOutputStream fos = new FileOutputStream(DEFAULT_SAVE_PATH.getAbsolutePath() + "\\" + DEFAULT_FILENAME, append)) {
             for (Byte b : msgTemp) fos.write(b);
         } catch (IOException e) {
             throw new RuntimeException(e);
