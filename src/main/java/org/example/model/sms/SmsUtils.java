@@ -11,7 +11,17 @@ public class SmsUtils {
     private static final File DEFAULT_FILENAME = new File("save.bin");
 
     static {
-        if (!DEFAULT_SAVE_PATH.exists()) DEFAULT_SAVE_PATH.mkdir();
+        String[] dirTree = DEFAULT_SAVE_PATH.toString().split("\\\\");
+        for (int i = 0; i < dirTree.length; i++) {
+            int elements = i + 1;
+            StringBuilder path = new StringBuilder();
+            for (int j = 0; j < elements; j++) {
+                path.append(dirTree[j]).append("\\");
+            }
+            File dir = new File(path.toString());
+            if (!dir.exists()) dir.mkdir();
+        }
+
         if (!DEFAULT_FILENAME.exists()) {
             try {
                 DEFAULT_FILENAME.createNewFile();
