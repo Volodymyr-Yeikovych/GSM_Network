@@ -1,7 +1,6 @@
 package org.example.service;
 
 import org.example.controller.ProgramController;
-import org.example.model.Message;
 import org.example.model.Sender;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public class SenderService {
 
     }
 
-    public static void passMessageToBTS(Message message) {
+    public static void passMessageToBTS(Byte[] message) {
         ProgramController.getSenderBTS().handle(message);
     }
 

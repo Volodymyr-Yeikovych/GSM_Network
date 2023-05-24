@@ -1,56 +1,121 @@
 package org.example.enc;
 
-import org.example.exception.InvalidGSMessageFormatException;
-import org.example.model.Message;
+import org.example.exception.InvalidGsmMessageFormatException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SmsEncryptionManager {
-    public static void decrypt(Message message) {
+//    public synchronized static void decrypt(Message message) {
+//        String smsDeliveryMsg = message.getMessage();
+//        String receiverPhone = message.getReceiverPhone();
+//        String senderPhone = message.getSenderPhone();
+//
+//        if (notSmsDeliverMsg(smsDeliveryMsg))
+//            throw new InvalidGsmMessageFormatException("Invalid sms format. Expected SMS-DELIVERY");
+//        if (notMatchingReceiverPhone(smsDeliveryMsg, receiverPhone))
+//            throw new InvalidGsmMessageFormatException("Invalid receiver phone.");
+//        if (notMatchingSenderPhone(smsDeliveryMsg, senderPhone))
+//            throw new InvalidGsmMessageFormatException("Invalid sender phone.");
+//
+//        String getMessageData = getMessageUD(smsDeliveryMsg);
+//        message.setMessage(getMessageData);
+//    }
 
-        message.setMessage("m1");
+    private static String getMessageUD(String smsDeliveryMsg) {
+        int otherOctets = 7 * 2;
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        int senPhLen = getSenderPhoneLength(smsDeliveryMsg);
+        int timeStampLen = 7 * 2;
+        int udl = getMessageUDL(smsDeliveryMsg);
+        int elementsTillUD = otherOctets + timeStampLen + recPhLen + senPhLen + 2;
+        String messageUD = smsDeliveryMsg.substring(elementsTillUD, elementsTillUD + udl);
+        return unpackOctetsToString(parseHexToByteArr(messageUD));
     }
 
-    public static void translateToSmsDeliverMessage(Message message) {
-        String senderNum = message.getSenderPhone();
-        String encryptedMessage = message.getMessage();
-
-        String smsClen;
-        String receiverAddressType = "91";
-        String phNum = getEncReadyPhoneNum(senderNum);
-        smsClen = Integer.toHexString((receiverAddressType + phNum).length() / 2);
-        String smsDeliver = "04";
-
-        List<String> tpData = getDataFromEncMessage(encryptedMessage);
-
-        String tpDA = tpData.get(0);
-        String senderAddressType = tpData.get(1);
-        String receiverNum = tpData.get(2);
-        String tpPID = tpData.get(3);
-        String tpDCS = tpData.get(4);
-        String tpSCTs = getSemiOctetsTime();
-        String tpUDL = tpData.get(5);
-        String tpUD = tpData.get(6);
-
+    private static int getMessageUDL(String smsDeliveryMsg) {
+        int otherOctets = 7 * 2;
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        int senPhLen = getSenderPhoneLength(smsDeliveryMsg);
+        int timeStampLen = 7 * 2;
+        int elementsTillUDL = otherOctets + timeStampLen + recPhLen + senPhLen;
+        return Integer.parseInt(smsDeliveryMsg.substring(elementsTillUDL, elementsTillUDL + 2), 16) * 2;
     }
+
+    private static int getReceiverPhoneLength(String smsDeliveryMsg) {
+        return (Integer.parseInt(smsDeliveryMsg.substring(0, 2), 16) * 2) - 2;
+    }
+
+    private static boolean notMatchingReceiverPhone(String smsDeliveryMsg, String receiverPhone) {
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        String senderPh = smsDeliveryMsg.substring(4, recPhLen + 4);
+        String senderPhDec = decryptPhoneNum(senderPh);
+        return !senderPhDec.equals(receiverPhone);
+    }
+
+    private static boolean notMatchingSenderPhone(String smsDeliveryMsg, String senderPhone) {
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        int senPhLen = getSenderPhoneLength(smsDeliveryMsg);
+        String senPh = smsDeliveryMsg.substring(10 + recPhLen, 10 + recPhLen + senPhLen);
+        String senPhDec = decryptPhoneNum(senPh);
+        return !senPhDec.equals(senderPhone);
+    }
+
+    private static int getSenderPhoneLength(String smsDeliveryMsg) {
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        int senPhLen = (Integer.parseInt(smsDeliveryMsg.substring(recPhLen + 6, recPhLen + 8), 16));
+        if (senPhLen % 2 == 1) senPhLen++;
+        return senPhLen;
+    }
+
+    private static boolean notSmsDeliverMsg(String smsDeliveryMsg) {
+        int recPhLen = getReceiverPhoneLength(smsDeliveryMsg);
+        String smsSubmit = smsDeliveryMsg.substring(recPhLen + 4, recPhLen + 6);
+        return !smsSubmit.equals("04");
+    }
+
+//    public synchronized static void translateToSmsDeliverMessage(Message message) {
+//        String receiverNum = message.getReceiverPhone();
+//        String smsSubmitMsg = message.getMessage();
+//
+//        String smsClen;
+//        String senderAddType = "91";
+//        String receiverPh = getEncReadyPhoneNum(receiverNum);
+//        smsClen = Integer.toHexString((senderAddType + receiverPh).length() / 2);
+//        if (smsClen.length() > 2) smsClen = smsClen.substring(smsClen.length() - 2);
+//        if (smsClen.length() < 2) smsClen = "0".repeat(2 - smsClen.length()) + smsClen;
+//        String smsDeliver = "04";
+//
+//        List<String> tpData = getDataFromEncMessage(smsSubmitMsg);
+//
+//        String tpDA = tpData.get(0);
+//        String receiverAddType = tpData.get(1);
+//        String senderNum = tpData.get(2);
+//        String tpPID = tpData.get(3);
+//        String tpDCS = tpData.get(4);
+//        String tpSCTs = getSemiOctetsTime();
+//        String tpUDL = tpData.get(5);
+//        String tpUD = tpData.get(6);
+//
+//        String smsDeliverMsg = smsClen + senderAddType + receiverPh + smsDeliver + tpDA + receiverAddType + senderNum
+//                + tpPID + tpDCS + tpSCTs + tpUDL + tpUD;
+//        message.setMessage(smsDeliverMsg);
+//    }
 
     private static List<String> getDataFromEncMessage(String encryptedMessage) {
-        if (!encryptedMessage.startsWith("11", 2)) throw new InvalidGSMessageFormatException("Not a SMS-SUBMIT");
+        if (!encryptedMessage.startsWith("11", 2)) throw new InvalidGsmMessageFormatException("Not a SMS-SUBMIT");
         List<String> tpData = new ArrayList<>();
 
         String tpDA = encryptedMessage.substring(6, 8);
         int phLen = Integer.parseInt(tpDA, 16);
-        System.out.println(phLen);
         if (phLen % 2 == 1) phLen++;
         tpData.add(tpDA); // 0
 
         String senderAddrType = encryptedMessage.substring(8, 10);
         tpData.add(senderAddrType); // 1
 
-        String receiverNum = encryptedMessage.substring(10, phLen);
-        tpData.add(receiverNum); // 2
+        String senderNum = encryptedMessage.substring(10, 10 + phLen);
+        tpData.add(senderNum); // 2
 
         String tpPid = encryptedMessage.substring(phLen, phLen + 2);
         tpData.add(tpPid); // 3
@@ -68,34 +133,34 @@ public class SmsEncryptionManager {
     }
 
     private static String getSemiOctetsTime() {
-        return "";
+        return "99309251619580";
     }
 
-    public synchronized static void encrypt(Message message) {
-        String receiverNum = message.getReceiverPhone();
-        String msg = message.getMessage();
-        String smsC = "00";
-        String smsSubmit = "11";
-        String tpMR = Integer.toHexString(message.getTimesPassed());
-        if (tpMR.length() > 2) tpMR = tpMR.substring(tpMR.length() - 2);
-        if (tpMR.length() < 2) tpMR = "0".repeat(2 - tpMR.length()) + tpMR;
-        String tpDA = Integer.toHexString(receiverNum.length());
-        if (tpDA.length() > 2) tpDA = tpDA.substring(tpDA.length() - 2);
-        if (tpDA.length() < 2) tpDA = "0".repeat(2 - tpDA.length()) + tpDA;
-        String typeOfAddress = "91";
-        String phNum = getEncReadyPhoneNum(receiverNum);
-        String tpPID = "00";
-        String tpDCS = "00";
-        String tpVP = "00";
-        String tpUDL = Integer.toHexString(msg.length());
-        if (tpUDL.length() > 2) tpUDL = tpUDL.substring(tpUDL.length() - 2);
-        if (tpUDL.length() < 2) tpUDL = "0".repeat(2 - tpUDL.length()) + tpUDL;
-        byte[] packedMessage = packToOctets(msg);
-        String tpUD = toHex(packedMessage);
-
-        String encryptedMsg = smsC + smsSubmit + tpMR + tpDA + typeOfAddress + phNum + tpPID + tpDCS + tpVP + tpUDL + tpUD;
-        message.setMessage(encryptedMsg);
-    }
+//    public synchronized static void encrypt(Message message) {
+//        String senderNum = message.getSenderPhone();
+//        String msg = message.getMessage();
+//        String smsC = "00";
+//        String smsSubmit = "11";
+//        String tpMR = Integer.toHexString(message.getTimesPassed());
+//        if (tpMR.length() > 2) tpMR = tpMR.substring(tpMR.length() - 2);
+//        if (tpMR.length() < 2) tpMR = "0".repeat(2 - tpMR.length()) + tpMR;
+//        String tpDA = Integer.toHexString(senderNum.length());
+//        if (tpDA.length() > 2) tpDA = tpDA.substring(tpDA.length() - 2);
+//        if (tpDA.length() < 2) tpDA = "0".repeat(2 - tpDA.length()) + tpDA;
+//        String receiverAddType = "91";
+//        String phNum = getEncReadyPhoneNum(senderNum);
+//        String tpPID = "00";
+//        String tpDCS = "02";
+//        String tpVP = "00";
+//        String tpUDL = Integer.toHexString(msg.length());
+//        if (tpUDL.length() > 2) tpUDL = tpUDL.substring(tpUDL.length() - 2);
+//        if (tpUDL.length() < 2) tpUDL = "0".repeat(2 - tpUDL.length()) + tpUDL;
+//        byte[] packedMessage = packToOctets(msg);
+//        String tpUD = toHex(packedMessage);
+//
+//        String encryptedMsg = smsC + smsSubmit + tpMR + tpDA + receiverAddType + phNum + tpPID + tpDCS + tpVP + tpUDL + tpUD;
+//        message.setMessage(encryptedMsg);
+//    }
 
     private static String toHex(byte[] packedMessage) {
         StringBuilder builder = new StringBuilder(packedMessage.length);
@@ -211,12 +276,22 @@ public class SmsEncryptionManager {
 
     private static String getEncReadyPhoneNum(String receiverNum) {
         String evenNum = receiverNum.length() % 2 == 1 ? receiverNum += "F" : receiverNum;
+        return toSemiOctets(evenNum);
+    }
+
+    private static String toSemiOctets(String sequence) {
         StringBuilder swappedNum = new StringBuilder();
-        for (int i = 0; i < evenNum.length(); i+=2) {
-            char first = evenNum.charAt(i);
-            char second = evenNum.charAt(i + 1);
+        for (int i = 0; i < sequence.length(); i += 2) {
+            char first = sequence.charAt(i);
+            char second = sequence.charAt(i + 1);
             swappedNum.append(second).append(first);
         }
         return swappedNum.toString();
+    }
+
+    private static String decryptPhoneNum(String senderPh) {
+        String reversed = toSemiOctets(senderPh);
+        if (reversed.endsWith("F")) return reversed.substring(0, reversed.length() - 1);
+        return reversed;
     }
 }

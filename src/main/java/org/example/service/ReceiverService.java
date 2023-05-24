@@ -2,7 +2,6 @@ package org.example.service;
 
 import org.example.controller.ProgramController;
 import org.example.exception.ReceiverOutOfReachException;
-import org.example.model.Message;
 import org.example.model.Receiver;
 
 import java.util.List;
@@ -14,7 +13,7 @@ public class ReceiverService {
 
     }
 
-    public static void passMessageToReceiver(Message message) {
+    public static void passMessageToReceiver(Byte[] message) {
         ProgramController.sendMessageToReceiver(message);
     }
 

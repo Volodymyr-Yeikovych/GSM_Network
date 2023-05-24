@@ -49,7 +49,7 @@ public class SwingView extends JFrame implements View {
     }
 
     private void removeBSCLayer() {
-        if (!bscPanelLayers.isEmpty()) {
+        if (bscPanelLayers.size() > 1) {
             BSCPanel toRemove = bscPanelLayers.get(bscPanelLayers.size() - 1);
             toRemove.getBSCPool().forEach(BSC::terminate);
             bscPanelLayers.remove(toRemove);

@@ -6,6 +6,7 @@ import org.example.service.ReceiverService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -13,12 +14,12 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
 
     private static final String DEFAULT_NAME = "BTS";
     private static final int DEFAULT_SIDE_SIZE = 60;
-    private static final long DEFAULT_SLEEPING_TIME = 1000L;
+    private static final long DEFAULT_SLEEPING_TIME = 3000L;
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
     private final boolean isSenderBTS;
-    private final Queue<Message> messages = new ArrayBlockingQueue<>(999999);
+    private final Queue<Byte[]> messages = new ArrayBlockingQueue<>(999999);
 
     public BTS(String text, boolean isSenderBTS) {
         super(DEFAULT_NAME + ":" + text);
@@ -39,7 +40,7 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
         return DEFAULT_NAME;
     }
 
-    public void handle(Message message) {
+    public void handle(Byte[] message) {
         boolean handled = messages.offer(message);
         if (!handled) {
             for (int i = 0; i < 3; i++) {
@@ -52,9 +53,9 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + Arrays.toString(message) + "} ->>> wasn't processed!!!");
         else {
-            System.out.println(message + " Handled by Sender BTS");
+            System.out.println(Arrays.toString(message) + " Handled by Sender BTS");
         }
     }
 
@@ -75,16 +76,14 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
             try {
                 while (!messages.isEmpty()) {
                     if (paused || terminated) break;
-                    Message toProcess = messages.poll();
+                    Byte[] toProcess = messages.poll();
                     if (toProcess == null) break;
+                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + Arrays.toString(toProcess) + "}");
                     if (isSenderBTS) {
-                        SmsEncryptionManager.encrypt(toProcess);
                         BtsService.passMessageToBsc(toProcess);
                     } else {
-                        SmsEncryptionManager.decrypt(toProcess);
                         ReceiverService.passMessageToReceiver(toProcess);
                     }
-                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }
             } catch (InterruptedException e) {

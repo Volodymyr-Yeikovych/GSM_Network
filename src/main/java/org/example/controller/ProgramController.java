@@ -131,15 +131,15 @@ public class ProgramController {
         return receiverBTS;
     }
 
-    public synchronized static void sendMessageToBSC(Message message) {
+    public synchronized static void sendMessageToBSC(Byte[] message) {
         for (int i = 1; i <= bscLayerPool.size(); i++) {
             BSC bsc = getLeastBusyBSCFromLayer(i);
             bsc.handle(message);
         }
     }
-    public synchronized static void sendMessageToReceiver(Message message) {
+    public synchronized static void sendMessageToReceiver(Byte[] message) {
         receiverPool.stream()
-                .filter(receiver -> receiver.getPhone().equals(message.getReceiverPhone()))
+                .filter(receiver -> receiver.getPhone().equals(Receiver.peekMessagePhone(message)))
                 .min(Comparator.comparing(Receiver::getPhone))
                 .orElseThrow(() -> new ReceiverOutOfReachException("Receiver was not found"))
                 .handle(message);

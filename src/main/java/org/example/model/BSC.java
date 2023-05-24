@@ -5,6 +5,7 @@ import org.example.service.BscService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -15,7 +16,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
     private String name;
-    private Queue<Message> processingPool = new ArrayBlockingQueue<>(999999);
+    private Queue<Byte[]> processingPool = new ArrayBlockingQueue<>(999999);
 
     public BSC(String name) {
         super(name);
@@ -36,7 +37,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
         return this.getText();
     }
 
-    public void handle(Message message) {
+    public void handle(Byte[] message) {
         boolean handled = processingPool.offer(message);
         if (!handled) {
             for (int i = 0; i < 3; i++) {
@@ -49,7 +50,7 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
                 }
             }
         }
-        if (!handled) System.out.println("Error: {" + message.getMessage() + "} ->>> wasn't processed!!!");
+        if (!handled) System.out.println("Error: {" + Arrays.toString(message) + "} ->>> wasn't processed!!!");
     }
 
     @Override
@@ -88,11 +89,10 @@ public class BSC extends JTextField implements Runnable, PausableProcess {
             try {
                 while (!processingPool.isEmpty()) {
                     if (paused || terminated) break;
-                    Message toProcess = processingPool.poll();
+                    Byte[] toProcess = processingPool.poll();
                     if (toProcess == null) break;
-                    SmsEncryptionManager.translateToSmsDeliverMessage(toProcess);
+                    System.out.println(name + " MessageProcessed{" + Arrays.toString(toProcess) + "}");
                     BscService.passMessageToBTS(toProcess);
-                    System.out.println(name + " MessageProcessed{" + toProcess.getMessage() + "}");
                     Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {
