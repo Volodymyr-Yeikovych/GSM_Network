@@ -5,10 +5,13 @@ import org.example.model.BTS;
 import org.example.model.Receiver;
 import org.example.model.Sender;
 import org.example.service.BscService;
+import org.example.service.ReceiverService;
 import org.example.service.SenderService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SwingView extends JFrame implements View {
 
     private SenderService senderService;
+    private ReceiverService receiverService;
     private BscService bscService;
     private SenderPanel senderPanel;
     private ReceiverPanel receiverPanel;
@@ -24,12 +28,13 @@ public class SwingView extends JFrame implements View {
     private List<BSCPanel> bscPanelLayers = new CopyOnWriteArrayList<>();
     private JButton addBSC = new JButton("+");
     private JButton deleteBSC = new JButton("-");
-    public SwingView(SenderService senderService, BscService bscService) {
+    public SwingView(SenderService senderService, ReceiverService receiverService, BscService bscService) {
         super();
         this.senderService = senderService;
+        this.receiverService = receiverService;
         this.bscService = bscService;
         this.senderPanel = new SenderPanel(senderService);
-        this.receiverPanel  = new ReceiverPanel();
+        this.receiverPanel  = new ReceiverPanel(receiverService);
 
         addBSC.setVisible(true);
         addBSC.addActionListener(e -> {
@@ -43,6 +48,12 @@ public class SwingView extends JFrame implements View {
 
         this.setSize(1080, 1080);
         this.setResizable(false);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                senderPanel.saveMessages();
+            }
+        });
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new GridLayout(1, 0));
         this.setVisible(true);
@@ -53,7 +64,7 @@ public class SwingView extends JFrame implements View {
             BSCPanel toRemove = bscPanelLayers.get(bscPanelLayers.size() - 1);
             toRemove.getBSCPool().forEach(BSC::terminate);
             bscPanelLayers.remove(toRemove);
-            BscService.removeBscLayer(toRemove.getLayer());
+            bscService.removeBscLayer(toRemove.getLayer());
             this.getContentPane().remove(toRemove);
             loadBSCToPanel();
             update();
@@ -106,7 +117,7 @@ public class SwingView extends JFrame implements View {
     }
 
     @Override
-    public void displaySenderBTS(BTS bts) {
+    public void displaySenderBTS(List<BTS> bts) {
         if (senderBTSPanel == null) {
             this.senderBTSPanel = new SenderBTSPanel(bts);
             this.getContentPane().add(senderBTSPanel, 1);
@@ -114,7 +125,7 @@ public class SwingView extends JFrame implements View {
     }
 
     @Override
-    public void displayReceiverBTS(BTS bts) {
+    public void displayReceiverBTS(List<BTS> bts) {
         if (receiverBTSPanel == null) {
             this.receiverBTSPanel = new ReceiverBTSPanel(bts);
             this.getContentPane().add(receiverBTSPanel, 4 + bscPanelLayers.size());
@@ -140,7 +151,9 @@ public class SwingView extends JFrame implements View {
     public void repaint() {
         update();
         senderPanel.removeAndRepaint();
+        senderBTSPanel.removeAndRepaint();
         bscPanelLayers.forEach(BSCPanel::removeAndRepaint);
+        receiverBTSPanel.removeAndRepaint();
         receiverPanel.removeAndRepaint();
     }
 

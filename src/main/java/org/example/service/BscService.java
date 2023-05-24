@@ -10,26 +10,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BscService {
 
     private static Map<Byte[], Integer> msgCounter = new ConcurrentHashMap<>();
-    public BscService() {
-
-    }
-
     public static void passMessageToBTS(Byte[] message) {
         Integer counter = msgCounter.get(message);
         if (counter == null) counter = 0;
         msgCounter.put(message, ++counter);
         if (msgCounter.get(message) == ProgramController.getBSCSize()) {
-            ProgramController.getReceiverBTS().handle(message);
+            ProgramController.getAvailableReceiverBTS().handle(message);
             msgCounter.remove(message);
         }
     }
 
     public static void createBSC() {
         ProgramController.createBSC();
+        ProgramController.createSenderBTS();
+        ProgramController.createReceiverBTS();
     }
 
-    public static void removeBscLayer(int layer) {
+    public void removeBscLayer(int layer) {
         ProgramController.removeBCSLayer(layer);
+    }
+
+    public static void removeBsc(BSC bsc) {
+        ProgramController.removeBsc(bsc);
     }
 
     public void addBSCLayer() {

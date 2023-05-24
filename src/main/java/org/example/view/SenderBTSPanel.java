@@ -5,28 +5,38 @@ import org.example.model.BTS;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.util.List;
 
 public class SenderBTSPanel extends JPanel {
-    private BTS senderBTS;
+    private List<BTS> senderBTS;
 
-    public SenderBTSPanel(BTS senderBTS) {
+    public SenderBTSPanel(List<BTS> senderBTS) {
         super();
         this.senderBTS = senderBTS;
-        this.setPreferredSize(new Dimension(70, 70));
         this.setBackground(Color.lightGray);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         this.setFocusCycleRoot(true);
         this.setVisible(true);
-        this.add(senderBTS);
+        addAllBts();
     }
+
+    private void addAllBts() {
+        if (!senderBTS.isEmpty()) senderBTS.forEach(this::add);
+    }
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        senderBTS.paintComponents(g);
     }
 
-    public BTS getSenderBTS() {
-        return senderBTS;
+    public void removeAndRepaint() {
+        removeAll();
+        addAllBts();
+        revalidate();
+        repaint();
     }
+
 }

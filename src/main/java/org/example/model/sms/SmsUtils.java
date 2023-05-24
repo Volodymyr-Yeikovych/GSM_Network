@@ -1,6 +1,15 @@
 package org.example.model.sms;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class SmsUtils {
+
+    private static int timesWritten = 0;
+    private static final String DEFAULT_SAVE_PATH = "C:\\Users\\Volodymyr\\IdeaProjects\\GSM_Network\\src\\main\\resources\\bin";
+    private static final String DEFAULT_FILENAME = "save.bin";
+
     public static byte[] toPrimitive(Byte[] bytes) {
         byte[] primitive = new byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
@@ -50,7 +59,18 @@ public class SmsUtils {
         if (b == 7) return '7';
         if (b == 8) return '8';
         if (b == 9) return '9';
-        if (b == -1) return 'F';
+        if (b == 15) return 'F';
         return '0';
+    }
+
+    public static void saveToFile(Byte[] msgTemp) {
+        boolean append = timesWritten != 0;
+        try (FileOutputStream fos = new FileOutputStream(DEFAULT_SAVE_PATH + "\\" + DEFAULT_FILENAME, append)) {
+            for (Byte b : msgTemp) fos.write(b);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            timesWritten++;
+        }
     }
 }

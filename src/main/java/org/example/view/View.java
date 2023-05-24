@@ -14,8 +14,8 @@ public interface View{
     void displaySenders(List<Sender> senderList);
     void displayReceivers(List<Receiver> receiverList);
     void displayBSC(Map<Integer, List<BSC>> bscLayerPool);
-    void displaySenderBTS(BTS bts);
-    void displayReceiverBTS(BTS bts);
+    void displaySenderBTS(List<BTS> bts);
+    void displayReceiverBTS(List<BTS> bts);
     void displayAddBSCButton();
     void displayDeleteBSCButton();
     void repaint();

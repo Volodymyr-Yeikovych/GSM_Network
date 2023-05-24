@@ -57,5 +57,9 @@ public class SenderPanel extends JPanel {
     private void addSenderPoolToPanel() {
         if (!senderPool.isEmpty()) senderPool.forEach(this::add);
     }
+
+    public void saveMessages() {
+        senderPool.forEach(Sender::saveMessage);
+    }
 }
 

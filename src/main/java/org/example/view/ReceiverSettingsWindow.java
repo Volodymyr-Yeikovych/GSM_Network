@@ -6,13 +6,8 @@ import org.example.service.ReceiverService;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.lang.reflect.InvocationTargetException;
 
 public class ReceiverSettingsWindow extends JFrame {
-
     private Receiver receiver;
     private JButton terminateButton = new JButton("TERMINATE!");
     private JLabel msgCount = new JLabel();

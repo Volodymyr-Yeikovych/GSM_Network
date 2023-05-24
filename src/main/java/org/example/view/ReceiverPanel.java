@@ -9,16 +9,18 @@ import java.awt.*;
 import java.util.List;
 
 public class ReceiverPanel extends JPanel {
+    private ReceiverService receiverService;
     private List<Receiver> receiverPool;
     private JButton plusBut = new JButton("+");
-    public ReceiverPanel() {
+    public ReceiverPanel(ReceiverService receiverService) {
         super();
+        this.receiverService = receiverService;
+
         plusBut.setSize(new Dimension(40, 40));
         plusBut.setVisible(true);
         plusBut.addActionListener(e -> {
             Receiver plus1 = new Receiver("R" + (receiverPool.size() + 1));
-            new Thread(plus1).start();
-            receiverPool.add(plus1);
+            receiverService.addReceiver(plus1);
             removeAndRepaint();
         });
 

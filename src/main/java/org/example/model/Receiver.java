@@ -34,19 +34,10 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
         setUp();
     }
 
-    public Receiver(String devNum, boolean hasTimeOut) {
-        super(devNum);
-        this.devNum = devNum;
-        this.phone = ReceiverService.generateRandomPhoneNum();
-        this.hasTimeOut = hasTimeOut;
-        setUp();
-    }
-
     public static String peekMessagePhone(Byte[] message) {
         byte[] primitiveMessage = SmsUtils.toPrimitive(message);
         String result = getReceiverPhone(primitiveMessage);
         if (result.endsWith("F")) result = result.substring(0, result.length() - 1);
-        System.out.println(result);
         return result;
     }
 
@@ -57,11 +48,10 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
 
     private static byte[] getReceiverPhoneOctets(byte[] message) {
         byte[] semiOctets = getReceiverPhoneSemiOctets(message);
-        System.out.println(Arrays.toString(semiOctets));
         byte[] octets = new byte[semiOctets.length * 2];
         for (int i = 0; i < semiOctets.length; i++) {
             byte first = (byte) (semiOctets[i] & 0x0f);
-            byte second = (byte) (semiOctets[i] >> 4);
+            byte second = (byte) ((byte) (semiOctets[i] >> 4) & 0x0f);
             octets[2 * i] = first;
             octets[1 + (2 * i)] = second;
         }
@@ -85,8 +75,10 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
 
     private static int getReceiverOctetLength(byte[] message) {
         int senderPhOctet = getSmsCLength(message);
-        int recPhLenIndex = message[senderPhOctet + 3];
-        return recPhLenIndex - 1;
+        int recPhLen = message[senderPhOctet + 3];
+        if (recPhLen % 2 == 1) recPhLen++;
+        recPhLen /= 2;
+        return recPhLen;
     }
 
     private static int getSmsCLength(byte[] message) {
@@ -122,7 +114,25 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
     }
 
     private String decrypt(Byte[] message) {
-        return "decrypted";
+        byte[] msg = SmsUtils.toPrimitive(message);
+        return getDecryptedMessage(msg);
+    }
+
+    private String getDecryptedMessage(byte[] message) {
+        int msgLen = getMessageLength(message);
+        byte[] msg = Arrays.copyOfRange(message, message.length - msgLen, message.length);
+        StringBuilder decrypted = new StringBuilder();
+        for (byte b : msg) {
+            decrypted.append((char) b);
+        }
+        return decrypted.toString();
+    }
+
+    private int getMessageLength(byte[] message) {
+        int smsClen = getSmsCLength(message);
+        int recPhoneLen = getReceiverOctetLength(message);
+        int offset = smsClen + 4 + recPhoneLen + 4;
+        return message[offset];
     }
 
     @Override
@@ -192,10 +202,6 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
 
     public String getPhone() {
         return phone;
-    }
-
-    public int getMessagePoolSize() {
-        return receivedMessages.size();
     }
 
     public int getReceivedMsgPoolSize() {

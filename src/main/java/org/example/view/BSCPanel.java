@@ -8,7 +8,7 @@ import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.util.List;
 
-public class BSCPanel extends JPanel{
+public class BSCPanel extends JPanel {
     private List<BSC> bscPool;
     private int layer;
 
@@ -17,6 +17,7 @@ public class BSCPanel extends JPanel{
         this.layer = layer;
         this.setPreferredSize(new Dimension(160, 160));
         this.setBackground(Color.WHITE);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         this.setFocusCycleRoot(true);
         this.setVisible(true);
@@ -35,9 +36,8 @@ public class BSCPanel extends JPanel{
 
     public void addBSCLayerToPanel() {
         if (!bscPool.isEmpty()) {
-            bscPool.forEach(bsc -> {
-                if (bsc.getQueueSize() > 5) BscService.createBSC();
-            });
+            if (bscPool.stream().allMatch(bcs -> bcs.getQueueSize() > 5))
+                BscService.createBSC();
             bscPool.forEach(this::add);
         }
     }

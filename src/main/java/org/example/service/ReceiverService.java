@@ -9,24 +9,23 @@ import java.util.Random;
 
 public class ReceiverService {
 
-    public ReceiverService() {
-
-    }
-
     public static void passMessageToReceiver(Byte[] message) {
         ProgramController.sendMessageToReceiver(message);
     }
 
     public static void removeReceiver(Receiver receiver) {
-        receiver.terminate();
         ProgramController.removeReceiver(receiver);
+    }
+
+    public void addReceiver(Receiver receiver) {
+        ProgramController.addReceiver(receiver);
     }
 
     public static String getRandomReceiverPhone() {
         List<Receiver> receiverPool = ProgramController.getReceiverPool();
         int size = receiverPool.size();
-        int rand = new Random().nextInt(0, size);
         if (size == 0) throw new ReceiverOutOfReachException("No available receivers");
+        int rand = new Random().nextInt(0, size);
         return receiverPool.get(rand).getPhone();
     }
 

@@ -7,12 +7,8 @@ import java.util.List;
 
 public class SenderService {
 
-    public SenderService() {
-
-    }
-
     public static void passMessageToBTS(Byte[] message) {
-        ProgramController.getSenderBTS().handle(message);
+        ProgramController.getAvailableSenderBTS().handle(message);
     }
 
     public static String generateRandomPhoneNum() {
@@ -24,12 +20,10 @@ public class SenderService {
     }
 
     public void addSender(Sender sender) {
-        new Thread(sender).start();
         ProgramController.addSender(sender);
     }
 
     public static void removeSender(Sender sender) {
-        sender.terminate();
         ProgramController.removeSender(sender);
     }
 

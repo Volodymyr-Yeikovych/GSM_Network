@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.exception.InvalidGsmMessageFormatException;
+import org.example.exception.ReceiverOutOfReachException;
 import org.example.model.sms.SmsUtils;
 import org.example.service.ReceiverService;
 import org.example.service.SenderService;
@@ -19,6 +20,7 @@ public class Sender extends JButton implements Runnable, PausableProcess {
     private int timesSent;
     private String devNum;
     private String phone;
+    private Byte[] msgTemp;
     private int messageDelay;
     private String message;
 
@@ -82,12 +84,16 @@ public class Sender extends JButton implements Runnable, PausableProcess {
             try {
                 if (terminated) break;
                 if (paused) continue;
-                Byte[] msg = getNewEncryptedMessage();
-                System.out.println(this.devNum + " SENT MESSAGE!!");
-                SenderService.passMessageToBTS(msg);
-                if (timesSent >= 255) timesSent = 0;
+                try {
+                    msgTemp = getNewEncryptedMessage();
+                    Thread.sleep(messageDelay * 1000L);
+                    System.out.println(this.devNum + " SENT MESSAGE!!");
+                    SenderService.passMessageToBTS(msgTemp);
+                    if (timesSent >= 255) timesSent = 0;
+                } catch (ReceiverOutOfReachException e) {
+                    System.out.println("Unable to send sms - no receiver!!!");
+                }
                 timesSent++;
-                Thread.sleep(messageDelay * 1000L);
             } catch (InterruptedException e) {
                 System.out.println(this.devNum + " Exception caught while sleeping.");
             }
@@ -97,8 +103,8 @@ public class Sender extends JButton implements Runnable, PausableProcess {
 
     private Byte[] getNewEncryptedMessage() {
         byte[] maxSmsC = new byte[255];
-        String receiverPhone = ReceiverService.getRandomReceiverPhone();
-
+        String receiverPhone;
+            receiverPhone = ReceiverService.getRandomReceiverPhone();
         byte[] senPhArr = toSemiOctet(this.phone);
         maxSmsC[1] = (byte) (0b1001_0000); // type of address
 
@@ -117,15 +123,13 @@ public class Sender extends JButton implements Runnable, PausableProcess {
         maxTPDU[3] = (byte) 0b1001_0000; // tp da type of address
 
         byte[] recPhArr = toSemiOctet(receiverPhone);
-        System.out.println(phone);
-        System.out.println(Arrays.toString(recPhArr));
         if (recPhArr.length > 10) throw new InvalidGsmMessageFormatException("Receiver phone cant be more than 20 digits");
 
         prevSize += 2;
         for (int i = prevSize; i < recPhArr.length + prevSize; i++) {
             maxTPDU[i] = recPhArr[i - prevSize];
         } // tp-da address value
-        maxTPDU[2] = (byte) (recPhArr.length + 1); // tp da address length
+        maxTPDU[2] = (byte) (receiverPhone.length()); // tp da address length
 
         maxTPDU[recPhArr.length + 4] = 0b00_0_00000; // tp pid
         maxTPDU[recPhArr.length + 5] = 0b0000_0100; // tp dcs
@@ -163,11 +167,9 @@ public class Sender extends JButton implements Runnable, PausableProcess {
         byte[] octet = new byte[senPh.length()];
         for (int i = 0; i < senPh.length(); i++) {
             byte save = SmsUtils.parseCharDigitToByte(senPh.charAt(i));
-            System.out.print(save + " ");
             if (i % 2 == 1) save = (byte) (save << 4);
             octet[i] = save;
         }
-        System.out.println();
         byte[] semiOctet = new byte[senPh.length() / 2];
         for (int i = 0; i < semiOctet.length; i++) {
             byte first = octet[i * 2];
@@ -209,5 +211,9 @@ public class Sender extends JButton implements Runnable, PausableProcess {
 
     public boolean isPaused() {
         return paused;
+    }
+
+    public void saveMessage() {
+        SmsUtils.saveToFile(msgTemp);
     }
 }

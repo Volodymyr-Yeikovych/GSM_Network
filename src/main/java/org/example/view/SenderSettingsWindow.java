@@ -9,7 +9,6 @@ import java.awt.*;
 import java.util.Objects;
 
 public class SenderSettingsWindow extends JFrame {
-
     private Sender sender;
     private JSlider msgFreq = new JSlider();
     private JButton terminateButton = new JButton("TERMINATE!");

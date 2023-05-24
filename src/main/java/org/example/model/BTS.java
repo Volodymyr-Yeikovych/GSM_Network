@@ -1,6 +1,5 @@
 package org.example.model;
 
-import org.example.enc.SmsEncryptionManager;
 import org.example.service.BtsService;
 import org.example.service.ReceiverService;
 
@@ -10,34 +9,49 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class BTS extends JTextField implements Runnable, PausableProcess {
-
-    private static final String DEFAULT_NAME = "BTS";
-    private static final int DEFAULT_SIDE_SIZE = 60;
-    private static final long DEFAULT_SLEEPING_TIME = 3000L;
+public class BTS extends JPanel implements Runnable, PausableProcess {
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
+    private JTextField textField;
+    private JButton terminateButton;
+    private String name;
     private final boolean isSenderBTS;
     private final Queue<Byte[]> messages = new ArrayBlockingQueue<>(999999);
 
     public BTS(String text, boolean isSenderBTS) {
-        super(DEFAULT_NAME + ":" + text);
+        super();
+        this.name = "BTS :" + text;
         this.isSenderBTS = isSenderBTS;
-        this.setEditable(false);
-        this.setPreferredSize(new Dimension(DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE));
+
+        this.textField = new JTextField(name);
+        this.terminateButton = new JButton("TERMINATE");
+
+        terminateButton.addActionListener(e -> terminateBts());
+        terminateButton.setVisible(true);
+
+        textField.setEditable(false);
+        textField.setVisible(true);
+
+        this.add(textField);
+        this.add(terminateButton);
+        this.setMaximumSize(new Dimension(160, 60));
+        this.setMinimumSize(new Dimension(160, 40));
         this.setVisible(true);
+    }
+
+    private void terminateBts() {
+        BtsService.removeBts(this);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawString(toString(), DEFAULT_SIDE_SIZE, DEFAULT_SIDE_SIZE);
     }
 
     @Override
     public String toString() {
-        return DEFAULT_NAME;
+        return name;
     }
 
     public void handle(Byte[] message) {
@@ -49,14 +63,11 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     Thread.sleep(1000);
                     handled = messages.offer(message);
                 } catch (InterruptedException e) {
-                    System.out.println(DEFAULT_NAME + " Exception caught while sleeping in handling");
+                    System.out.println(name + " Exception caught while sleeping in handling");
                 }
             }
         }
         if (!handled) System.out.println("Error: {" + Arrays.toString(message) + "} ->>> wasn't processed!!!");
-        else {
-            System.out.println(Arrays.toString(message) + " Handled by Sender BTS");
-        }
     }
 
     @Override
@@ -78,16 +89,16 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
                     if (paused || terminated) break;
                     Byte[] toProcess = messages.poll();
                     if (toProcess == null) break;
-                    System.out.println(DEFAULT_NAME + " MessageProcessed{" + Arrays.toString(toProcess) + "}");
+                    Thread.sleep(3000);
+                    System.out.println(name + " MessageProcessed{" + Arrays.toString(toProcess) + "}");
                     if (isSenderBTS) {
                         BtsService.passMessageToBsc(toProcess);
                     } else {
                         ReceiverService.passMessageToReceiver(toProcess);
                     }
-                    Thread.sleep(DEFAULT_SLEEPING_TIME);
                 }
             } catch (InterruptedException e) {
-                System.out.println(DEFAULT_NAME + " Exception caught while sleeping");
+                System.out.println(name + " Exception caught while sleeping");
                 break;
             }
         }
@@ -110,5 +121,13 @@ public class BTS extends JTextField implements Runnable, PausableProcess {
     public void terminate() {
         terminated = true;
         if (paused) unPause();
+    }
+
+    public int getMessagePoolSize() {
+        return messages.size();
+    }
+
+    public boolean isSenderBTS() {
+        return isSenderBTS;
     }
 }
