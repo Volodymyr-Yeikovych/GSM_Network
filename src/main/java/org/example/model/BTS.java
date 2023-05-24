@@ -9,13 +9,13 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class BTS extends JPanel implements Runnable, PausableProcess {
+public class BTS extends JPanel implements Runnable, PausableProcess, Process {
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private JTextField textField;
-    private JButton terminateButton;
-    private String name;
+    private final JTextField textField;
+    private final JButton terminateButton;
+    private final String name;
     private final boolean isSenderBTS;
     private final Queue<Byte[]> messages = new ArrayBlockingQueue<>(999999);
 
@@ -54,6 +54,7 @@ public class BTS extends JPanel implements Runnable, PausableProcess {
         return name;
     }
 
+    @Override
     public void handle(Byte[] message) {
         boolean handled = messages.offer(message);
         if (!handled) {

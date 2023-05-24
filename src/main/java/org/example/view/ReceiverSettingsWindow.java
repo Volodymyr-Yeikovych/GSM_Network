@@ -8,11 +8,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ReceiverSettingsWindow extends JFrame {
-    private Receiver receiver;
-    private JButton terminateButton = new JButton("TERMINATE!");
-    private JLabel msgCount = new JLabel();
-    private JTextField devNumField = new JTextField();
-    private JCheckBox timeOutCheck = new JCheckBox();
+    private final Receiver receiver;
+    private final JButton terminateButton = new JButton("TERMINATE!");
+    private final JLabel msgCount = new JLabel();
+    private final JTextField devNumField = new JTextField();
+    private final JCheckBox timeOutCheck = new JCheckBox();
 
     public ReceiverSettingsWindow(Receiver receiver)  {
         super();

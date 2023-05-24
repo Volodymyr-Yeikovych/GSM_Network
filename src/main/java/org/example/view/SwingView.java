@@ -18,16 +18,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SwingView extends JFrame implements View {
 
-    private SenderService senderService;
-    private ReceiverService receiverService;
-    private BscService bscService;
-    private SenderPanel senderPanel;
-    private ReceiverPanel receiverPanel;
+    private final SenderService senderService;
+    private final ReceiverService receiverService;
+    private final BscService bscService;
+    private final SenderPanel senderPanel;
+    private final ReceiverPanel receiverPanel;
     private SenderBTSPanel senderBTSPanel;
     private ReceiverBTSPanel receiverBTSPanel;
-    private List<BSCPanel> bscPanelLayers = new CopyOnWriteArrayList<>();
-    private JButton addBSC = new JButton("+");
-    private JButton deleteBSC = new JButton("-");
+    private final List<BSCPanel> bscPanelLayers = new CopyOnWriteArrayList<>();
+    private final JButton addBSC = new JButton("+");
+    private final JButton deleteBSC = new JButton("-");
     public SwingView(SenderService senderService, ReceiverService receiverService, BscService bscService) {
         super();
         this.senderService = senderService;
@@ -156,6 +156,4 @@ public class SwingView extends JFrame implements View {
         receiverBTSPanel.removeAndRepaint();
         receiverPanel.removeAndRepaint();
     }
-
-
 }

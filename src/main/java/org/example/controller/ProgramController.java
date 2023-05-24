@@ -141,15 +141,14 @@ public class ProgramController {
                 int rand = new Random().nextInt(0, 10);
                 builder.append(rand);
             }
-            if (phoneNumbersPool.contains(builder.toString())) {
-                continue;
-            } else {
+            if (!phoneNumbersPool.contains(builder.toString())) {
                 freeNum = true;
                 phoneNumbersPool.add(builder.toString());
             }
         }
         return builder.toString();
     }
+
     public synchronized static void createBSC() {
         List<Integer> layersSize = new ArrayList<>();
         for (int i = 1; i <= bscLayerPool.size(); i++) {

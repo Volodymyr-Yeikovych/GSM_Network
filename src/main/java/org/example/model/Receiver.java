@@ -12,19 +12,18 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Receiver extends JButton implements Runnable, PausableProcess {
+public class Receiver extends JButton implements Runnable, PausableProcess, Process {
     private static final int DEFAULT_SIDE_SIZE = 60;
     private static final int DEFAULT_TIME_OUT_S = 10;
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
     private ReceiverSettingsWindow window;
-    private String devNum;
+    private final String devNum;
     private boolean hasTimeOut;
-    private String phone;
-    private int timesReceived;
-    private Queue<Byte[]> receivedMessages = new ArrayBlockingQueue<>(999999);
-    private Map<Long, Byte[]> processedMessages = new ConcurrentHashMap<>();
+    private final String phone;
+    private final Queue<Byte[]> receivedMessages = new ArrayBlockingQueue<>(999999);
+    private final Map<Long, Byte[]> processedMessages = new ConcurrentHashMap<>();
 
     public Receiver(String devNum) {
         super(devNum);
@@ -55,7 +54,6 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
             octets[2 * i] = first;
             octets[1 + (2 * i)] = second;
         }
-        System.out.println(Arrays.toString(octets));
         return octets;
     }
 
@@ -65,9 +63,7 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
         int receiverOctetLen = getReceiverOctetLength(message);
         byte[] semiOctets = new byte[receiverOctetLen];
 
-        for (int i = 0; i < semiOctets.length; i++) {
-            semiOctets[i] = message[i + recPhoneIndex];
-        }
+        System.arraycopy(message, recPhoneIndex, semiOctets, 0, semiOctets.length);
 
         return semiOctets;
     }
@@ -94,9 +90,9 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
     private void openSettingsWindow() {
         if (window != null) window.dispose();
         window = new ReceiverSettingsWindow(this);
-
     }
 
+    @Override
     public void handle(Byte[] message) {
         boolean handled = receivedMessages.offer(message);
         if (!handled) {
@@ -166,7 +162,6 @@ public class Receiver extends JButton implements Runnable, PausableProcess {
                 if (toProcess == null) break;
                 processedMessages.put(System.currentTimeMillis() / 1000, toProcess);
                 System.out.println(devNum + " MessageProcessed{" + decrypt(toProcess) + "}");
-                timesReceived++;
             }
             checkTimeOutTime();
         }

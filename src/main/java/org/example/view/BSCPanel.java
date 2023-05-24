@@ -10,7 +10,7 @@ import java.util.List;
 
 public class BSCPanel extends JPanel {
     private List<BSC> bscPool;
-    private int layer;
+    private final int layer;
 
     public BSCPanel(int layer) {
         super();

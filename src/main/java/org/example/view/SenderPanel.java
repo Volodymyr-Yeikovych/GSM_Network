@@ -9,10 +9,10 @@ import java.awt.*;
 import java.util.List;
 
 public class SenderPanel extends JPanel {
-    private SenderService senderService;
+    private final SenderService senderService;
     private List<Sender> senderPool;
     private SenderWindow window;
-    private JButton plusBut = new JButton("+");
+    private final JButton plusBut = new JButton("+");
 
     public SenderPanel(SenderService senderService) {
         super();

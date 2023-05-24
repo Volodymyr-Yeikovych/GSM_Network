@@ -10,15 +10,15 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class BSC extends JPanel implements Runnable, PausableProcess {
+public class BSC extends JPanel implements Runnable, PausableProcess, Process {
     private volatile boolean terminated = false;
     private volatile boolean paused = false;
     private final Object pauseLock = new Object();
-    private JTextField textField;
-    private JButton terminateButton;
-    private String name;
-    private Random randomTime = new Random();
-    private Queue<Byte[]> processingPool = new ArrayBlockingQueue<>(999999);
+    private final JTextField textField;
+    private final JButton terminateButton;
+    private final String name;
+    private final Random randomTime = new Random();
+    private final Queue<Byte[]> processingPool = new ArrayBlockingQueue<>(999999);
 
     public BSC(String name) {
         super();
@@ -56,6 +56,7 @@ public class BSC extends JPanel implements Runnable, PausableProcess {
         return name;
     }
 
+    @Override
     public void handle(Byte[] message) {
         boolean handled = processingPool.offer(message);
         if (!handled) {

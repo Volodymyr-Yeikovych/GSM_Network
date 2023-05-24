@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 
 public class SenderBTSPanel extends JPanel {
-    private List<BTS> senderBTS;
+    private final List<BTS> senderBTS;
 
     public SenderBTSPanel(List<BTS> senderBTS) {
         super();

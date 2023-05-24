@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BscService {
 
-    private static Map<Byte[], Integer> msgCounter = new ConcurrentHashMap<>();
+    private final static Map<Byte[], Integer> msgCounter = new ConcurrentHashMap<>();
     public static void passMessageToBTS(Byte[] message) {
         Integer counter = msgCounter.get(message);
         if (counter == null) counter = 0;

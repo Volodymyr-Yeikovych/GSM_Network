@@ -6,14 +6,13 @@ import org.example.service.SenderService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 public class SenderSettingsWindow extends JFrame {
-    private Sender sender;
-    private JSlider msgFreq = new JSlider();
-    private JButton terminateButton = new JButton("TERMINATE!");
-    private JTextField devNumField = new JTextField();
-    private JComboBox<String> senderState = new JComboBox<>();
+    private final Sender sender;
+    private final JSlider msgFreq = new JSlider();
+    private final JButton terminateButton = new JButton("TERMINATE!");
+    private final JTextField devNumField = new JTextField();
+    private final JComboBox<String> senderState = new JComboBox<>();
 
     public SenderSettingsWindow(Sender sender) throws HeadlessException {
         super();

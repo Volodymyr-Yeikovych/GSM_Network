@@ -6,7 +6,7 @@ import org.example.service.ReceiverService;
 import org.example.service.SenderService;
 import org.example.view.SwingView;
 
-public class Main {
+public class S28201Project03 {
     public static void main(String[] args) throws InterruptedException {
         ProgramController controller = new ProgramController(new SwingView(new SenderService(), new ReceiverService(), new BscService()));
         controller.start();

@@ -7,10 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SenderWindow extends JFrame{
-    private SenderService senderService;
-    private JTextArea messageField = new JTextArea();
-    private JButton okBut = new JButton("OK");
-    private JSlider msgFreq = new JSlider();
+    private final SenderService senderService;
+    private final JTextArea messageField = new JTextArea();
+    private final JButton okBut = new JButton("OK");
+    private final JSlider msgFreq = new JSlider();
     public SenderWindow(SenderService senderService) {
         this.senderService = senderService;
 

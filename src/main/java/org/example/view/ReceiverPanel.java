@@ -9,9 +9,9 @@ import java.awt.*;
 import java.util.List;
 
 public class ReceiverPanel extends JPanel {
-    private ReceiverService receiverService;
+    private final ReceiverService receiverService;
     private List<Receiver> receiverPool;
-    private JButton plusBut = new JButton("+");
+    private final JButton plusBut = new JButton("+");
     public ReceiverPanel(ReceiverService receiverService) {
         super();
         this.receiverService = receiverService;
@@ -55,6 +55,4 @@ public class ReceiverPanel extends JPanel {
     private void addReceiverPoolToPanel() {
         if (!receiverPool.isEmpty()) receiverPool.forEach(this::add);
     }
-
-
 }
